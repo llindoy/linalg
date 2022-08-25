@@ -1,10 +1,10 @@
-#ifndef UTILS_EXCEPTION_HANDLING_MACROS_HPP
-#define UTILS_EXCEPTION_HANDLING_MACROS_HPP
+#ifndef LINALG_EXCEPTION_HANDLING_MACROS_HPP
+#define LINALG_EXCEPTION_HANDLING_MACROS_HPP
 
 #include <stdexcept>
 #include <iostream>
 
-namespace utils
+namespace linalg
 {
     struct invalid_value : public std::exception
     {
@@ -14,6 +14,8 @@ namespace utils
         virtual const char* what() const throw(){ return m_msg.c_str();}
     };
 }
+
+#ifndef UTILS_EXCEPTION_HANDLING_MACROS_HPP
 
 #define DEBUG
 
@@ -48,22 +50,22 @@ namespace utils
     throw std::runtime_error(AT_MACRO(error_string));
 
 #define RAISE_NUMERIC_MESSSTR(error_string, str)                      \
-    throw utils::invalid_value(std::string(AT_MACRO(error_string))   \
+    throw linalg::invalid_value(std::string(AT_MACRO(error_string))   \
         + std::string(str));
 
 #define RAISE_NUMERIC_STR(str)                                        \
-    throw utils::invalid_value(std::string(AT_MACRO("Invalid value encountered when "))                  \
+    throw linalg::invalid_value(std::string(AT_MACRO("Invalid value encountered when "))                  \
         + std::string(str));
 
 #define RAISE_NUMERIC(error_string)                                     \
-    throw utils::invalid_value(AT_MACRO("Invalid value encountered when " error_string));
+    throw linalg::invalid_value(AT_MACRO("Invalid value encountered when " error_string));
 
 #define CALL_AND_HANDLE(expr, error_string)                                     \
     try{ expr; }                                                                \
-    catch(const utils::invalid_value& ex)                                      \
+    catch(const linalg::invalid_value& ex)                                      \
     {                                                                           \
         std::cerr << ex.what() << std::endl;                                    \
-        throw utils::invalid_value(AT_MACRO("Invalid value: " error_string));   \
+        throw linalg::invalid_value(AT_MACRO("Invalid value: " error_string));   \
     }                                                                           \
     catch(const std::exception& ex)                                             \
     {                                                                           \
@@ -93,9 +95,10 @@ namespace utils
 #define ASSERT_NUMERIC(cond, error_string)                              \
     if(!(cond))                                                         \
     {                                                                   \
-        throw utils::invalid_value(AT_MACRO("Assertion failed "        \
+        throw linalg::invalid_value(AT_MACRO("Assertion failed "        \
                 TOSTRING_MACRO(cond) ": " error_string));               \
     }   
 #endif
 
+#endif
 #endif
