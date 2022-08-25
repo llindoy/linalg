@@ -1,4 +1,4 @@
-#linalg
+# linalg
 
 A header library for multidimensional tensor that supports arbitrary rank dense tensor and some sparse matrix types.  This supports a range of linear algebra operations (see linalg/algebra/expressions/overloads for the supported operations) through the use of an expression template based wrapper of BLAS (and cublas for tensors that are stored on CUDA enable GPUs), and through a set of classes wrapping the functionality of various LAPACK routines (see linalg/decompositions and linalg/special_functions for the supported operations).  
 
