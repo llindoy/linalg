@@ -298,8 +298,8 @@ protected:
         CALL_AND_HANDLE(backend_type::hseqr(JOB, COMPZ, N, ILO, IHI, mat.buffer(), LDH, m_eigs_r.buffer(), m_eigs_i.buffer(), rvecs, LDZ, m_work.buffer(), LWORK), "Failed to compute eigendecomposition of upper_hessenberg matrix.  Failed when computing the eigenvalues using hseqr.");
         CALL_AND_HANDLE(internal::interleave_eigenvalues(N, m_eigs_r.buffer(), 1, m_eigs_i.buffer(), 1, eigs.buffer(), eigs.incx()), "Failed to compute eigendecomposition of upper hessenberg matrix.  Failed to interleave real and imaginary part arrays to form complex array.");
 
-        char SIDE = 'R'; char HOWMNY = 'B'; select_type select; int_type LDT = mat.shape(1);  value_type VL; int_type LDVL = 1;   int_type LDVR = vecs.shape(1);  int_type MM = 2*vecs.shape(1);   int_type M;
-        CALL_AND_HANDLE(M = backend_type::trevc(SIDE, HOWMNY, &select, N, mat.buffer(), LDT, &VL, LDVL, rvecs, LDVR, MM, m_work.buffer()), "Failed to compute eigenvectors of upper_hessenberg matrix.  Failed when computing the eigenvectors using trevc.");
+        char SIDE = 'R'; char HOWMNY = 'B'; select_type select; int_type LDT = mat.shape(1);  value_type VL; int_type LDVL = 1;   int_type LDVR = vecs.shape(1);  int_type MM = 2*vecs.shape(1);
+        CALL_AND_HANDLE(backend_type::trevc(SIDE, HOWMNY, &select, N, mat.buffer(), LDT, &VL, LDVL, rvecs, LDVR, MM, m_work.buffer()), "Failed to compute eigenvectors of upper_hessenberg matrix.  Failed when computing the eigenvectors using trevc.");
 
         CALL_AND_HANDLE(mem_trans::copy(rvecs, N*N, mat.buffer()), "Failed to copy the packed eigenvector buffer to the mat buffer.");
         CALL_AND_HANDLE(internal::unpack_eigenvectors(N, m_eigs_i.buffer(), mat.buffer(), vecs.buffer()), "Failed to unpack eigenvectors buffer to complex format.");
@@ -319,8 +319,8 @@ protected:
 
         CALL_AND_HANDLE(vecs_l = vecs_r, "Failed to compute eigendecomposition of upper_hessenberg matrix.  Failed to copy the unitary matrix returned by hseqr into the left eigenvector matrix.");
 
-        char SIDE = 'B'; char HOWMNY = 'B'; select_type select; int_type LDT = mat.shape(1);  int_type LDVL = vecs_l.shape(1);   int_type LDVR = vecs_r.shape(1);  int_type MM = vecs_r.shape(1);   int_type M ;
-        CALL_AND_HANDLE(M = backend_type::trevc(SIDE, HOWMNY, &select, N, mat.buffer(), LDT, rvecsl, LDVL, rvecsr, LDVR, MM, m_work.buffer()), "Failed to compute eigenvectors of upper_hessenberg matrix.  Failed when computing the eigenvectors using trevc.");
+        char SIDE = 'B'; char HOWMNY = 'B'; select_type select; int_type LDT = mat.shape(1);  int_type LDVL = vecs_l.shape(1);   int_type LDVR = vecs_r.shape(1);  int_type MM = vecs_r.shape(1);
+        CALL_AND_HANDLE(backend_type::trevc(SIDE, HOWMNY, &select, N, mat.buffer(), LDT, rvecsl, LDVL, rvecsr, LDVR, MM, m_work.buffer()), "Failed to compute eigenvectors of upper_hessenberg matrix.  Failed when computing the eigenvectors using trevc.");
         
         CALL_AND_HANDLE(mem_trans::copy(rvecsr, N*N, mat.buffer()), "Failed to copy the packed eigenvector buffer to the mat buffer.");
         CALL_AND_HANDLE(internal::unpack_eigenvectors(N, m_eigs_i.buffer(), mat.buffer(), vecs_r.buffer()), "Failed to unpack eigenvectors buffer to complex format.");
@@ -545,8 +545,8 @@ protected:
         char JOB = 'S'; char COMPZ = 'I';  int_type N = mat.shape(0);  int_type ILO = 1;   int_type IHI = N;    int_type LDH = mat.shape(1);   int_type LDZ = vecs.shape(1);    int_type LWORK = m_work.size();  
         CALL_AND_HANDLE(backend_type::hseqr(JOB, COMPZ, N, ILO, IHI, mat.buffer(), LDH, eigs.buffer(), vecs.buffer(), LDZ, m_work.buffer(), LWORK), "Failed to compute eigendecomposition of upper_hessenberg matrix.  Failed when computing the eigenvalues using hseqr.");
 
-        char SIDE = 'R'; char HOWMNY = 'B'; select_type select; int_type LDT = mat.shape(1);  value_type VL; int_type LDVL = 1;   int_type LDVR = vecs.shape(1);  int_type MM = vecs.shape(1);   int_type M;
-        CALL_AND_HANDLE(M = backend_type::trevc(SIDE, HOWMNY, &select, N, mat.buffer(), LDT, &VL, LDVL, vecs.buffer(), LDVR, MM, m_work.buffer(), m_rwork.buffer()), "Failed to compute eigenvectors of upper_hessenberg matrix.  Failed when computing the eigenvectors using trevc.");
+        char SIDE = 'R'; char HOWMNY = 'B'; select_type select; int_type LDT = mat.shape(1);  value_type VL; int_type LDVL = 1;   int_type LDVR = vecs.shape(1);  int_type MM = vecs.shape(1);
+        CALL_AND_HANDLE(backend_type::trevc(SIDE, HOWMNY, &select, N, mat.buffer(), LDT, &VL, LDVL, vecs.buffer(), LDVR, MM, m_work.buffer(), m_rwork.buffer()), "Failed to compute eigenvectors of upper_hessenberg matrix.  Failed when computing the eigenvectors using trevc.");
         
         //now vecs is in column major order so we convert it to row major order
         CALL_AND_HANDLE(vecs = trans(vecs), "Failed to compute eigenvectors of upper hessenberg matrix.  Failed to transpose eigenvalues.");
