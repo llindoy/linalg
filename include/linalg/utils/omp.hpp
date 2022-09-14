@@ -1,7 +1,7 @@
 #ifndef OMP_WRAPPER_HPP
 #define OMP_WRAPPER_HPP
 
-#ifdef _OPENMP
+#ifdef USE_OPENMP
     #include <omp.h>
 #else
     typedef int omp_int_t;
