@@ -590,6 +590,53 @@ public:
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                         Wrappers of the tridiagonalisation routines                                    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+private:
+    //general matrices
+    static inline void sytrd_error_handling(blas_int_type INFO, const char type)
+    {
+        if(INFO != 0)
+        {
+            std::ostringstream oss; 
+            if(INFO < 0){oss << type << "sytrd call failed.  The argument at the " << -INFO << " position is invalid.";}
+            RAISE_EXCEPTION_MESSSTR("Failed to reduce a hermitian matrix to a symmetric tridiagonal form.  ", oss.str());
+        }
+    }
+public:
+    static inline void sytrd(const char uplo, const blas_int_type n, float* a, const blas_int_type lda, float* d, float* e, float* tau, float* work, const blas_int_type lwork)
+    {blas_int_type info;   using namespace lapack; ssytrd_(&uplo, &n, a, &lda, d, e, tau, work, &lwork, &info);    CALL_AND_RETHROW(sytrd_error_handling(info, 's'));}
+    static inline void sytrd(const char uplo, const blas_int_type n, double* a, const blas_int_type lda, double* d, double* e, double* tau, double* work, const blas_int_type lwork)
+    {blas_int_type info;   using namespace lapack; dsytrd_(&uplo, &n, a, &lda, d, e, tau, work, &lwork, &info);    CALL_AND_RETHROW(sytrd_error_handling(info, 'd'));}
+    static inline void sytrd(const char uplo, const blas_int_type n, complex<float>* a, const blas_int_type lda, float* d, float* e, complex<float>* tau, complex<float>* work, const blas_int_type lwork)
+    {blas_int_type info;   using namespace lapack; chetrd_(&uplo, &n, a, &lda, d, e, tau, work, &lwork, &info);    CALL_AND_RETHROW(sytrd_error_handling(info, 'c'));}
+    static inline void sytrd(const char uplo, const blas_int_type n, complex<double>* a, const blas_int_type lda, double* d, double* e, complex<double>* tau, complex<double>* work, const blas_int_type lwork)
+    {blas_int_type info;   using namespace lapack; zhetrd_(&uplo, &n, a, &lda, d, e, tau, work, &lwork, &info);    CALL_AND_RETHROW(sytrd_error_handling(info, 'z'));}
+
+
+private:
+    //general matrices
+    static inline void ormtr_error_handling(blas_int_type INFO, const char type)
+    {
+        if(INFO != 0)
+        {
+            std::ostringstream oss; 
+            if(INFO < 0){oss << type << "ormtr call failed.  The argument at the " << -INFO << " position is invalid.";}
+            RAISE_EXCEPTION_MESSSTR("Failed to apply orthogonal matrix stored in elementary reflectors.  ", oss.str());
+        }
+    }
+public:
+    static inline void ormtr(const char side, const char uplo, const char trans, const blas_int_type m, const blas_int_type n, float* a, const blas_int_type lda, float* tau, float* c, const blas_int_type ldc, float* work, const blas_int_type lwork)
+    {blas_int_type info;   using namespace lapack; sormtr_(&side, &uplo, &trans, &m, &n, a, &lda, tau, c, &ldc, work, &lwork, &info);    CALL_AND_RETHROW(ormtr_error_handling(info, 's'));}
+    static inline void ormtr(const char side, const char uplo, const char trans, const blas_int_type m, const blas_int_type n, double* a, const blas_int_type lda, double* tau, double* c, const blas_int_type ldc, double* work, const blas_int_type lwork)
+    {blas_int_type info;   using namespace lapack; dormtr_(&side, &uplo, &trans, &m, &n, a, &lda, tau, c, &ldc, work, &lwork, &info);    CALL_AND_RETHROW(ormtr_error_handling(info, 'd'));}
+    static inline void ormtr(const char side, const char uplo, const char trans, const blas_int_type m, const blas_int_type n, complex<float>* a, const blas_int_type lda, complex<float>* tau, complex<float>* c, const blas_int_type ldc, complex<float>* work, const blas_int_type lwork)
+    {blas_int_type info;   using namespace lapack; cunmtr_(&side, &uplo, &trans, &m, &n, a, &lda, tau, c, &ldc, work, &lwork, &info);    CALL_AND_RETHROW(ormtr_error_handling(info, 'c'));}
+    static inline void ormtr(const char side, const char uplo, const char trans, const blas_int_type m, const blas_int_type n, complex<double>* a, const blas_int_type lda, complex<double>* tau, complex<double>* c, const blas_int_type ldc, complex<double>* work, const blas_int_type lwork)
+    {blas_int_type info;   using namespace lapack; zunmtr_(&side, &uplo, &trans, &m, &n, a, &lda, tau, c, &ldc, work, &lwork, &info);    CALL_AND_RETHROW(ormtr_error_handling(info, 'z'));}
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                         Wrappers of the lapack generalised eigendecomposition routines                             //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 private:

@@ -85,40 +85,34 @@ public:
     T& operator[](size_type i){return base_type::m_vals[i];}
     const T& operator[](size_type i) const{return base_type::m_vals[i];}
     T& at(size_type i){ASSERT(internal::compare_bounds(i, base_type::m_nnz), "Failed to access element of symmetric tridiagonal matrix.  Index out of bounds.");    return base_type::m_vals[i];}
-    const T& at(size_type i) const{ASSERT(internal::compare_bounds(i, base_type::m_nnz), "Failed to access element of symmetric tridiagonal matrix.  Index out of bounds."); return base_type::m_vals[i];}
+    T at(size_type i) const{ASSERT(internal::compare_bounds(i, base_type::m_nnz), "Failed to access element of symmetric tridiagonal matrix.  Index out of bounds."); return base_type::m_vals[i];}
 
     T& operator()(size_type i, size_type j)
     {
         if(i == j){return base_type::m_vals[i];}
-        else if(i == j+1){return base_type::m_vals[base_type::m_shape[0] + j];}
         else if(i+1 == j){return base_type::m_vals[base_type::m_shape[0] + i];}
+        else if(i == j+1){return base_type::m_vals[base_type::m_shape[0] + j];}
         else{RAISE_EXCEPTION("Failed to access element of symmetric tridiagonal matrix.  The requested index is not a tridiagonal element.");}
     }
 
-    const T& operator()(size_type i, size_type j) const
+    T operator()(size_type i, size_type j) const
     {
         if(i == j){return base_type::m_vals[i];}
-        else if(i == j+1){return base_type::m_vals[base_type::m_shape[0] + j];}
         else if(i+1 == j){return base_type::m_vals[base_type::m_shape[0] + i];}
+        else if(i == j+1){return linalg::conj(base_type::m_vals[base_type::m_shape[0] + j]);}
         else{RAISE_EXCEPTION("Failed to access element of symmetric tridiagonal matrix.  The requested index is not a tridiagonal element.");}
     }
 
     T& at(size_type i, size_type j)
     {
         ASSERT(internal::compare_bounds(i, base_type::m_shape[0]) && internal::compare_bounds(j, base_type::m_shape[1]), "Failed to access element of symmetric tridiagonal matrix.  Index out of bounds.");
-        if(i == j){return base_type::m_vals[i];}
-        else if(i == j+1){return base_type::m_vals[base_type::m_shape[0] + j];}
-        else if(i+1 == j){return base_type::m_vals[base_type::m_shape[0] + i];}
-        else{RAISE_EXCEPTION("Failed to access element of symmetric tridiagonal matrix.  The requested index is not a tridiagonal element.");}
+        CALL_AND_RETHROW(return this->operator()(i, j));
     }
 
-    const T& at(size_type i, size_type j) const
+    T at(size_type i, size_type j) const
     {
         ASSERT(internal::compare_bounds(i, base_type::m_shape[0]) && internal::compare_bounds(j, base_type::m_shape[1]), "Failed to access element of symmetric tridiagonal matrix.  Index out of bounds.");
-        if(i == j){return base_type::m_vals[i];}
-        else if(i == j+1){return base_type::m_vals[base_type::m_shape[0] + j];}
-        else if(i+1 == j){return base_type::m_vals[base_type::m_shape[0] + i];}
-        else{RAISE_EXCEPTION("Failed to access element of symmetric tridiagonal matrix.  The requested index is not a tridiagonal element.");}
+        CALL_AND_RETHROW(this->operator()(i, j));
     }
 
 };  //symmetric_tridiagonal_matrix<T, blas_backend>
@@ -159,6 +153,9 @@ std::ostream& operator<<(std::ostream& out, const symmetric_tridiagonal_matrix<T
     }
     return out;
 }
+
+//template <typename T, typename be, typename = typename std::enable_if<!is_complex<T>::value, void>::type>
+//using symmetric_tridiagonal_matrix = symmetric_tridiagonal_matrix<T, be>;
 
 }   //namespace linalg
 

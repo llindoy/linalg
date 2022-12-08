@@ -1,5 +1,5 @@
-#ifndef LINALG_DECOMPOSITIONS_EIGENSOLVER_GENERAL_MATRIX_HPP
-#define LINALG_DECOMPOSITIONS_EIGENSOLVER_GENERAL_MATRIX_HPP
+#ifndef LINALG_DECOMPOSITIONS_EIGENSOLVER_GENERAL_MATRIX_HPP_B
+#define LINALG_DECOMPOSITIONS_EIGENSOLVER_GENERAL_MATRIX_HPP_B
 
 #include "generalised_eigensolver_base.hpp"
 
@@ -115,7 +115,7 @@ public:
             {
                 CALL_AND_HANDLE(m_A = A, "Failed to compute eigenvalues of general matrix.  Failed to copy the matrix into working space.");
                 CALL_AND_HANDLE(m_B = B, "Failed to compute eigenvalues of general matrix.  Failed to copy the matrix into working space.");
-                CALL_AND_RETHROW(compute_eigenvalues(m_A, m_B, alpha, beta));
+                CALL_AND_RETHROW(compute(m_A, m_B, alpha, beta));
             }
             else{CALL_AND_RETHROW(compute(A, B, alpha, beta));}
         }
@@ -711,12 +711,14 @@ protected:
 
 //generalised_eigensolver object for general matrix type that is mutable.  This function provides
 //additional evaluating routines that optionally overwrite the input matrix.
+//
 template <typename matrix_type>
 class generalised_eigensolver
-<matrix_type, 
+<
+    matrix_type, 
     typename std::enable_if
     <
-        is_dense_matrix<remove_cvref_t<matrix_type>>::value &&!is_upper_hessenberg_matrix<remove_cvref_t<matrix_type>>::value && !is_hermitian_matrix<remove_cvref_t<matrix_type>>::value &&
+        is_dense_matrix<remove_cvref_t<matrix_type>>::value &&
         std::is_same<typename traits<remove_cvref_t<matrix_type>>::backend_type, blas_backend>::value,
         void
     >::type

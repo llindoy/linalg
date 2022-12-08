@@ -110,7 +110,7 @@ public:
             if(keep_inputs)
             {
                 CALL_AND_HANDLE(m_mat = mat, "Failed to compute eigenvalues of general matrix.  Failed to copy the matrix into working space.");
-                CALL_AND_RETHROW(compute_eigenvalues(m_mat, eigs));
+                CALL_AND_RETHROW(compute(m_mat, eigs));
             }
             else{CALL_AND_RETHROW(compute(mat, eigs));}
         }

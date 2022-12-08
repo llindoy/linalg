@@ -78,6 +78,20 @@ extern "C"
     //void zstedc_(const char* COMPZ, const blas_int_type* N,  complex<double>* D,  complex<double>* E,  complex<double>* Z, const blas_int_type* LDZ,  complex<double>* WORK, const blas_int_type* LWORK,  double* RWORK, const blas_int_type* LRWORK, blas_int_type* IWORK, const blas_int_type* LIWORK, blas_int_type* INFO);
     
 
+    //function for computing a symmetric tridiagonalisation of a general hermitian matrix
+    void ssytrd_(const char* UPLO, const blas_int_type* N, float* A, const blas_int_type* LDA, float* D, float* E, float* TAU, float* WORK, const blas_int_type* LWORK, blas_int_type* INFO);
+    void dsytrd_(const char* UPLO, const blas_int_type* N, double* A, const blas_int_type* LDA, double* D, double* E, double* TAU, double* WORK, const blas_int_type* LWORK, blas_int_type* INFO);
+    void chetrd_(const char* UPLO, const blas_int_type* N, complex<float>* A, const blas_int_type* LDA, float* D, float* E, complex<float>* TAU, complex<float>* WORK, const blas_int_type* LWORK, blas_int_type* INFO);
+    void zhetrd_(const char* UPLO, const blas_int_type* N, complex<double>* A, const blas_int_type* LDA, double* D, double* E, complex<double>* TAU, complex<double>* WORK, const blas_int_type* LWORK, blas_int_type* INFO);
+
+
+    //function for computing the action of the orthogonal/unitary matrix Q that is defined as the product of elementary reflectors that
+    //is returned from the ?sytrd and ?hetrd routines
+    void sormtr_(const char* side, const char* UPLO, const char* TRANS, const blas_int_type* M,  const blas_int_type* N, float* A, const blas_int_type* LDA, float* TAU, float* C, const blas_int_type* LDC, float* work, const blas_int_type* LWORK, blas_int_type* INFO);
+    void dormtr_(const char* side, const char* UPLO, const char* TRANS, const blas_int_type* M,  const blas_int_type* N, double* A, const blas_int_type* LDA, double* TAU, double* C, const blas_int_type* LDC, double* work, const blas_int_type* LWORK, blas_int_type* INFO);
+    void cunmtr_(const char* side, const char* UPLO, const char* TRANS, const blas_int_type* M,  const blas_int_type* N, complex<float>* A, const blas_int_type* LDA, complex<float>* TAU, complex<float>* C, const blas_int_type* LDC, complex<float>* work, const blas_int_type* LWORK, blas_int_type* INFO);
+    void zunmtr_(const char* side, const char* UPLO, const char* TRANS, const blas_int_type* M,  const blas_int_type* N, complex<double>* A, const blas_int_type* LDA, complex<double>* TAU, complex<double>* C, const blas_int_type* LDC, complex<double>* work, const blas_int_type* LWORK, blas_int_type* INFO);
+
     //functions for computing the LU decomposition of a matrix
     void sgetrf_(const blas_int_type* M, const blas_int_type* N, float* A, const blas_int_type* LDA, blas_int_type* IPIV, blas_int_type* INFO);
     void dgetrf_(const blas_int_type* M, const blas_int_type* N, double* A, const blas_int_type* LDA, blas_int_type* IPIV, blas_int_type* INFO);
