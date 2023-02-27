@@ -559,9 +559,9 @@ protected:
     template <typename mat_type, typename vals_type, typename uvecs_type, typename vvecs_type>
     void compute(mat_type& mat, vals_type& S, uvecs_type& U, vvecs_type& Vh)
     {
-            size_type worksize; CALL_AND_HANDLE(worksize = query_work_space_(mat, S, U, Vh), "Failed to compute singular values matrix.  Failed to determine optimal work space.");
+        size_type worksize; CALL_AND_HANDLE(worksize = query_work_space_(mat, S, U, Vh), "Failed to compute singular values matrix.  Failed to determine optimal work space.");
         CALL_AND_HANDLE(resize_work_space(worksize), "Failed to compute singular value decomposition of matrix. Failed to resize the optimal workspace array.");
-            CALL_AND_HANDLE(helper::call(true, mat.shape(0), mat.shape(1), mat.buffer(), mat.shape(1), S.buffer(), U.buffer(), U.shape(1), Vh.buffer(), Vh.shape(1), m_work.buffer(), m_work.size(), m_additional), "Failed to compute singular value decomposition of matrix.  Failed when evaluating the svd.");
+        CALL_AND_HANDLE(helper::call(true, mat.shape(0), mat.shape(1), mat.buffer(), mat.shape(1), S.buffer(), U.buffer(), U.shape(1), Vh.buffer(), Vh.shape(1), m_work.buffer(), m_work.size(), m_additional), "Failed to compute singular value decomposition of matrix.  Failed when evaluating the svd.");
     }
 
     template <typename mat_type, typename vals_type, typename uvecs_type, typename vvecs_type>

@@ -29,6 +29,20 @@ struct is_valid_dot_product :
 {};
 }   //namespace internal
 
+
+//norm of an array
+template <typename T>
+typename linalg::get_real_type<typename traits<T>::value_type>::type abs(const T& a)
+{
+    using value_type = typename std::remove_cv<typename traits<T>::value_type>::type;
+    using backend_type = typename traits<T>::backend_type;
+    
+    value_type val; CALL_AND_HANDLE(val = backend_type::dot(true, a.size(), a.buffer(), a.incx(), a.buffer(), a.incx()), "Failed to evaluate dot product between two arrays.  Failed to call the dot routine.");
+
+    return std::sqrt(linalg::real(val));
+}
+
+
 //dot product of two arrays
 template <typename T1, typename T2>
 typename std::enable_if<internal::is_valid_dot_product<T1, T2>::value, typename traits<T1>::value_type>::type dot_product(const T1& a, const T2& b)

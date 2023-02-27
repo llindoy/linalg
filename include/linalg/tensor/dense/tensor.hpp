@@ -290,18 +290,18 @@ public:
 #endif
 
 public:
-    template <typename ... Args>
-    inline reinterpreted_tensor<typename std::add_const<value_type>::type, sizeof...(Args), backend_type> reinterpret_shape(Args&& ... args) const
+    template <typename Itype, typename ... Args>
+    inline typename std::enable_if<std::is_integral<Itype>::value, reinterpreted_tensor<typename std::add_const<value_type>::type, sizeof...(Args)+1, backend_type>>::type reinterpret_shape(const Itype& i, Args&& ... args) const
     {
-        using reinterpreted_type = reinterpreted_tensor<typename std::add_const<value_type>::type, sizeof...(Args), backend_type>;
-        CALL_AND_HANDLE(return reinterpreted_type(m_totsize, true, m_buffer, std::forward<Args>(args)...), "Failed to reinterpret the shape of the tensor object.");
+        using reinterpreted_type = reinterpreted_tensor<typename std::add_const<value_type>::type, sizeof...(Args)+1, backend_type>;
+        CALL_AND_HANDLE(return reinterpreted_type(m_totsize, true, m_buffer, i, std::forward<Args>(args)...), "Failed to reinterpret the shape of the tensor object.");
     }
 
-    template <typename ... Args>
-    inline reinterpreted_tensor<value_type, sizeof...(Args), backend_type> reinterpret_shape(Args&& ... args)
+    template <typename Itype, typename ... Args>
+    inline typename std::enable_if<std::is_integral<Itype>::value, reinterpreted_tensor<value_type, sizeof...(Args)+1, backend_type>>::type reinterpret_shape(const Itype& i, Args&& ... args)
     {
-        using reinterpreted_type = reinterpreted_tensor<value_type, sizeof...(Args), backend_type>;
-        CALL_AND_HANDLE(return reinterpreted_type(m_totsize, true, m_buffer, std::forward<Args>(args)...), "Failed to reinterpret the shape of the tensor object.");
+        using reinterpreted_type = reinterpreted_tensor<value_type, sizeof...(Args)+1, backend_type>;
+        CALL_AND_HANDLE(return reinterpreted_type(m_totsize, true, m_buffer, i, std::forward<Args>(args)...), "Failed to reinterpret the shape of the tensor object.");
     }
 
     template <size_t vD>
@@ -319,18 +319,18 @@ public:
     }
 
     //functions for reinterpret the capacity of the tensor object
-    template <typename ... Args>
-    inline reinterpreted_tensor<typename std::add_const<value_type>::type, sizeof...(Args), backend_type> reinterpret_capacity(Args&& ... args) const
+    template <typename Itype, typename ... Args>
+    inline typename std::enable_if<std::is_integral<Itype>::value, reinterpreted_tensor<typename std::add_const<value_type>::type, sizeof...(Args)+1, backend_type>>::type reinterpret_capacity(const Itype& i, Args&& ... args) const
     {
-        using reinterpreted_type = reinterpreted_tensor<typename std::add_const<value_type>::type, sizeof...(Args), backend_type>;
-        CALL_AND_HANDLE(return reinterpreted_type(m_totcapacity, false, m_buffer, std::forward<Args>(args)...), "Failed to reinterpret the capacity of the tensor object.");
+        using reinterpreted_type = reinterpreted_tensor<typename std::add_const<value_type>::type, sizeof...(Args)+1, backend_type>;
+        CALL_AND_HANDLE(return reinterpreted_type(m_totcapacity, false, m_buffer, i, std::forward<Args>(args)...), "Failed to reinterpret the capacity of the tensor object.");
     }
 
-    template <typename ... Args>
-    inline reinterpreted_tensor<value_type, sizeof...(Args), backend_type> reinterpret_capacity(Args&& ... args)
+    template <typename Itype, typename ... Args>
+    inline typename std::enable_if<std::is_integral<Itype>::value, reinterpreted_tensor<value_type, sizeof...(Args)+1, backend_type>>::type reinterpret_capacity(const Itype& i, Args&& ... args)
     {
-        using reinterpreted_type = reinterpreted_tensor<value_type, sizeof...(Args), backend_type>;
-        CALL_AND_HANDLE(return reinterpreted_type(m_totcapacity, false, m_buffer, std::forward<Args>(args)...), "Failed to reinterpret the capacity of the tensor object.");
+        using reinterpreted_type = reinterpreted_tensor<value_type, sizeof...(Args)+1, backend_type>;
+        CALL_AND_HANDLE(return reinterpreted_type(m_totcapacity, false, m_buffer, i, std::forward<Args>(args)...), "Failed to reinterpret the capacity of the tensor object.");
     }
 
     template <size_t vD>
@@ -823,7 +823,7 @@ typename std::enable_if<traits<array_type>::rank == 2 && !is_complex<typename tr
         {
             os << t(i, j) << (j+1 == t.shape(1) ? "]" : ", ");
         }
-        os << (i+1 == t.shape(0) ? "]" : ",");
+        os << (i+1 == t.shape(0) ? "]" : ",") << std::endl;
     }
     return os;
 }

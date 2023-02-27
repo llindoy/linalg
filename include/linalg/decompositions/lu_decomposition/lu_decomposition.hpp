@@ -16,9 +16,29 @@ struct lu_result_validation
         size_t minmn = m.shape(0) > m.shape(1) ? m.shape(1) : m.shape(0);
         if(ipiv.size() != minmn){CALL_AND_HANDLE(ipiv.resize(minmn), "Failed to reshape the pivot array.");}
     }
+
+    template <typename matrix, typename mat2, typename mat3>
+    static bool validate_L_U(const matrix& m, mat2& L, mat3& U)
+    {
+        bool is_wide = m.shape(0) > m.shape(1);
+        size_t minmn = m.shape(0) > m.shape(1) ? m.shape(1) : m.shape(0);
+        if(is_wide)
+        {
+            L.resize(m.shape(0), m.shape(0));
+            U.resize(m.shape(0), m.shape(1));
+        }
+        else
+        {
+            L.resize(m.shape(0), m.shape(1));
+            U.resize(m.shape(1), m.shape(1));
+        }
+        return is_wide;
+    }
 };
 }
 
+
+//here we are performing an LU decomposition of the column major representation of the matrix of interest.  That is we are performing an LU decomposition of A^T
 template <typename matrix_type> 
 class lu_decomposition<matrix_type, typename std::enable_if<is_dense_matrix<matrix_type>::value && std::is_same<typename traits<matrix_type>::backend_type, blas_backend>::value, void>::type > 
 {
@@ -32,8 +52,8 @@ public:
     lu_decomposition(){}
 
     template <typename mat_type, typename mat_typeb>
-    typename std::enable_if<internal::valid_decomposition_matrix<mat_type, value_type, backend_type>::value && internal::valid_decomposition_matrix<mat_typeb, value_type, backend_type>::value, void>::type 
-    operator()(const mat_type& A, mat_typeb& LU, vector<int, backend_type>& ipiv)
+    internal::valid_decomp_matrix_type_2<matrix_type, mat_type, mat_typeb, void> 
+    operator()(const mat_type& A, mat_typeb& LU, vector<typename backend_type::int_type, backend_type>& ipiv)
     {
         try
         {
@@ -52,10 +72,68 @@ public:
             RAISE_EXCEPTION("Failed to evaluate LU decomposition.");
         }
     }
+
+    template <typename mat_type, typename mat_typeb, typename mat_typec>
+    internal::valid_decomp_matrix_type_3<matrix_type, mat_type, mat_typeb, mat_typec, void> 
+    operator()(const mat_type& A, mat_typeb& L, mat_typec& U, vector<typename backend_type::int_type, backend_type>& ipiv)
+    {
+        try
+        {
+            CALL_AND_HANDLE(internal::lu_result_validation::validate_ipiv(A, ipiv), "Failed to validate pivot array.");
+            
+            bool is_wide = validate_L_U(A, L, U);   //the matrix we are working with is wide.  So the column major representation of it is narrow
+            if(is_wide)
+            {
+                CALL_AND_HANDLE(U = A, "Failed to copy matrix.");
+                CALL_AND_HANDLE(blas_backend::getrf(U.size(1), U.size(0), U.buffer(), U.size(1), ipiv.buffer()), "Lapack call failed.");
+
+                //transfer the lower triangular part across to the L array.
+                L.fill_zeros();
+                for(size_t i = 0; i < A.size(0); ++i)
+                {
+                    for(size_t j=0; j < i; ++j)
+                    {
+                        L(i, j) = U(i, j);
+                        U(i, j) = value_type(0.0);
+                    }
+                    L(i, i) = value_type(1.0);
+                }
+            }
+            else
+            {
+                CALL_AND_HANDLE(L = A, "Failed to copy matrix.");
+                CALL_AND_HANDLE(blas_backend::getrf(L.size(1), L.size(0), L.buffer(), L.size(1), ipiv.buffer()), "Lapack call failed.");
+
+                //transfer the upper triangular part across to the U array.
+                U.fill_zeros();
+                for(size_t i = 0; i < A.size(1); ++i)
+                {
+                    for(size_t j=0; j <= i; ++j)
+                    {
+                        U(i, j) = L(i, j);
+                        L(i, j) = value_type(0.0);
+                    }
+                    L(i, i) = value_type(1.0);
+                }
+            }
+
+        }        
+        catch(const invalid_value& ex)
+        {
+            std::cerr << ex.what() << std::endl;
+            RAISE_NUMERIC("evaluating LU decomposition.");
+        }
+        catch(const std::exception& ex)
+        {
+            std::cerr << ex.what() << std::endl;
+            RAISE_EXCEPTION("Failed to evaluate LU decomposition.");
+        }
+    }
+
     
     template <typename mat_type>
     typename std::enable_if<internal::valid_decomposition_matrix<mat_type, value_type, backend_type>::value, void>::type 
-    operator()(mat_type& A, vector<int, backend_type>& ipiv)
+    operator()(mat_type& A, vector<typename backend_type::int_type, backend_type>& ipiv)
     {
         try
         {
@@ -106,8 +184,8 @@ public:
 
 
     template <typename mat_type, typename mat_typeb>
-    typename std::enable_if<internal::valid_decomposition_matrix<mat_type, value_type, backend_type>::value && internal::valid_decomposition_matrix<mat_typeb, value_type, backend_type>::value, void>::type 
-    operator()(const mat_type& A, mat_typeb& LU, vector<int, backend_type>& ipiv)
+    internal::valid_decomp_matrix_type_2<matrix_type, mat_type, mat_typeb, void> 
+    operator()(const mat_type& A, mat_typeb& LU, vector<typename backend_type::int_type, backend_type>& ipiv)
     {
         try
         {
@@ -135,7 +213,7 @@ public:
     
     template <typename mat_type>
     typename std::enable_if<internal::valid_decomposition_matrix<mat_type, value_type, backend_type>::value, void>::type 
-    operator()(mat_type& A, vector<int, backend_type>& ipiv)
+    operator()(mat_type& A, vector<typename backend_type::int_type, backend_type>& ipiv)
     {
         try
         {
@@ -147,6 +225,44 @@ public:
             CALL_AND_HANDLE(cuda_backend::getrf(A.size(1), A.size(0), A.buffer(), A.size(1), d_work.buffer(), ipiv.buffer(), m_gpu_info.buffer()), "Lapack call failed.");
             m_cpu_info = m_gpu_info;
             CALL_AND_RETHROW(cusolver::getrf_error_handling(m_cpu_info(0), 'a'));
+        }        
+        catch(const invalid_value& ex)
+        {
+            std::cerr << ex.what() << std::endl;
+            RAISE_NUMERIC("evaluating LU decomposition.");
+        }
+        catch(const std::exception& ex)
+        {
+            std::cerr << ex.what() << std::endl;
+            RAISE_EXCEPTION("Failed to evaluate LU decomposition.");
+        }
+    }
+
+    template <typename mat_type, typename mat_typeb, typename mat_typec>
+    internal::valid_decomp_matrix_type_3<matrix_type, mat_type, mat_typeb, mat_typec, void> 
+    operator()(const mat_type& A, mat_typeb& L, mat_typec& U, vector<typename backend_type::int_type, backend_type>& ipiv)
+    {
+        try
+        {
+            RAISE_EXCEPTION("GPU Implementation of LU decomposition into distinct matrices is currently not supported.");
+            CALL_AND_HANDLE(internal::lu_result_validation::validate_ipiv(A, ipiv), "Failed to validate pivot array.");
+            
+            bool is_wide = validate_L_U(A, L, U);
+            if(is_wide)
+            {
+                CALL_AND_HANDLE(U = A, "Failed to copy matrix.");
+                CALL_AND_HANDLE(blas_backend::getrf(U.size(1), U.size(0), U.buffer(), U.size(1), ipiv.buffer()), "Lapack call failed.");
+
+                //transfer the lower triangular part across to the L array.
+            }
+            else
+            {
+                CALL_AND_HANDLE(L = A, "Failed to copy matrix.");
+                CALL_AND_HANDLE(blas_backend::getrf(L.size(1), L.size(0), L.buffer(), L.size(1), ipiv.buffer()), "Lapack call failed.");
+
+                //transfer the upper triangular part across to the U array.
+            }
+
         }        
         catch(const invalid_value& ex)
         {

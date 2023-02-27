@@ -15,6 +15,7 @@
 #include "blas_wrapper.hpp"
 #include "mkl_wrapper.hpp"
 #include "lapack_wrapper.hpp"
+#include <random>
 #include <vector>
 #include <tuple>
 #include <algorithm>
@@ -295,6 +296,31 @@ public:
 
     template <typename T> 
     static inline void fill_matrix_block(const T* src, size_type m1, size_type n1, T* dest, size_type m2, size_type n2)
+    {   
+        ASSERT(n1 <= n2 && m1 <= m2, "fill_block call failed.  The subblock is larger than the full matrix.");
+        for(size_t i=0; i<m1; ++i)
+        {
+            for(size_t j=0; j<n1; ++j)
+            {
+                dest[i*n2+j] = src[i*n1+j];
+            }
+            for(size_t j=n1; j<n2; ++j)
+            {
+                dest[i*n2+j] = T(0);
+            }
+        }
+        for(size_t i=m1; i<m2; ++i)
+        {
+            for(size_t j=0; j<n2; ++j)
+            {
+                dest[i*n2+j] = T(0);
+            }
+        }
+    }
+
+
+    template <typename T> 
+    static inline void fill_matrix_upper_triangle(const T* src, size_type m1, size_type n1, T* dest, size_type m2, size_type n2)
     {   
         ASSERT(n1 <= n2 && m1 <= m2, "fill_block call failed.  The subblock is larger than the full matrix.");
         for(size_t i=0; i<m1; ++i)
@@ -892,6 +918,180 @@ public:
             copy(work, nt*nf, A);
         }
     }
+
+private:
+    static inline void geqp3_error_handling(blas_int_type INFO, const char type)
+    {
+        if(INFO != 0)
+        {
+            if(INFO < 0)
+            {
+                std::ostringstream oss; 
+                oss << type << "geqp3 call failed.  The argument at the " << -INFO << " position is invalid.";
+                RAISE_EXCEPTION_MESSSTR("Failed to compute lq decomposition.  ", oss.str());
+            }
+            else{RAISE_EXCEPTION("Failed to compute lq decomposition.");}
+        }    
+    }
+
+public:
+    //interface for constructing the qr - here this gives us the lq decomposition as all of our matrices are transposed
+    static inline void geqp3(const blas_int_type M, const blas_int_type N, float* A, const blas_int_type LDA, blas_int_type* JPVT, float* TAU, float* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;   sgeqp3_(&M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, &INFO);   CALL_AND_RETHROW(geqp3_error_handling(INFO, 's'));}
+    static inline void geqp3(const blas_int_type M, const blas_int_type N, double* A, const blas_int_type LDA, blas_int_type* JPVT, double* TAU, double* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;   dgeqp3_(&M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, &INFO);   CALL_AND_RETHROW(geqp3_error_handling(INFO, 'd'));}
+    static inline void geqp3(const blas_int_type M, const blas_int_type N, complex<float>* A, const blas_int_type LDA, blas_int_type* JPVT, complex<float>* TAU, complex<float>* WORK, const blas_int_type LWORK, float* RWORK)
+    {blas_int_type INFO;   using namespace lapack;    cgeqp3_(&M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, RWORK, &INFO);   CALL_AND_RETHROW(geqp3_error_handling(INFO, 'c'));}
+    static inline void geqp3(const blas_int_type M, const blas_int_type N, complex<double>* A, const blas_int_type LDA, blas_int_type* JPVT, complex<double>* TAU, complex<double>* WORK, const blas_int_type LWORK, double* RWORK)
+    {blas_int_type INFO;   using namespace lapack;    zgeqp3_(&M, &N, A, &LDA, JPVT, TAU, WORK, &LWORK, RWORK, &INFO);   CALL_AND_RETHROW(geqp3_error_handling(INFO, 'z'));}
+
+
+private:
+    static inline void geqrf_error_handling(blas_int_type INFO, const char type)
+    {
+        if(INFO != 0)
+        {
+            if(INFO < 0)
+            {
+                std::ostringstream oss; 
+                oss << type << "geqrf call failed.  The argument at the " << -INFO << " position is invalid.";
+                RAISE_EXCEPTION_MESSSTR("Failed to compute lq decomposition.  ", oss.str());
+            }
+            else{RAISE_EXCEPTION("Failed to compute lq decomposition.");}
+        }    
+    }
+
+public:
+    //interface for constructing the qr - here this gives us the lq decomposition as all of our matrices are transposed
+    static inline void geqrf(const blas_int_type M, const blas_int_type N, float* A, const blas_int_type LDA, float* TAU, float* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;   sgeqrf_(&M, &N, A, &LDA, TAU, WORK, &LWORK, &INFO);   CALL_AND_RETHROW(geqrf_error_handling(INFO, 's'));}
+    static inline void geqrf(const blas_int_type M, const blas_int_type N, double* A, const blas_int_type LDA, double* TAU, double* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;   dgeqrf_(&M, &N, A, &LDA, TAU, WORK, &LWORK, &INFO);   CALL_AND_RETHROW(geqrf_error_handling(INFO, 'd'));}
+    static inline void geqrf(const blas_int_type M, const blas_int_type N, complex<float>* A, const blas_int_type LDA, complex<float>* TAU, complex<float>* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    cgeqrf_(&M, &N, A, &LDA, TAU, WORK, &LWORK, &INFO);   CALL_AND_RETHROW(geqrf_error_handling(INFO, 'c'));}
+    static inline void geqrf(const blas_int_type M, const blas_int_type N, complex<double>* A, const blas_int_type LDA, complex<double>* TAU, complex<double>* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    zgeqrf_(&M, &N, A, &LDA, TAU, WORK, &LWORK, &INFO);   CALL_AND_RETHROW(geqrf_error_handling(INFO, 'z'));}
+
+private:
+    static inline void ungqr_error_handling(blas_int_type INFO, const char type)
+    {
+        if(INFO != 0)   
+        {
+            if(INFO < 0)
+            {
+                std::string method_name;
+                if(type == 's' || type == 'd'){method_name = "orgqr";}
+                else{method_name = "ungqr";}
+
+                std::ostringstream oss; 
+                oss << type << " " << method_name << "call failed.  The argument at the " << -INFO << " position is invalid.";
+                RAISE_EXCEPTION_MESSSTR("Failed to compute orthogonal Q matrix from elementary reflecators returned by geqp3.  ", oss.str());
+            }
+            else{RAISE_EXCEPTION("Failed to compute orthogonal Q matrix from elementary reflecators returned by geqp3.");}
+        }
+    }
+
+public:
+    static inline void ungqr(const blas_int_type M, const blas_int_type N, const blas_int_type K, float* A, const blas_int_type LDA, float* TAU, float* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    sorgqr_(&M, &N, &K, A, &LDA, TAU, WORK, &LWORK, &INFO);     CALL_AND_RETHROW(ungqr_error_handling(INFO, 's'));}
+    static inline void ungqr(const blas_int_type M, const blas_int_type N, const blas_int_type K, double* A, const blas_int_type LDA, double* TAU, double* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    dorgqr_(&M, &N, &K, A, &LDA, TAU, WORK, &LWORK, &INFO);     CALL_AND_RETHROW(ungqr_error_handling(INFO, 'd'));}
+    static inline void ungqr(const blas_int_type M, const blas_int_type N, const blas_int_type K, complex<float>* A, const blas_int_type LDA, complex<float>* TAU, complex<float>* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    cungqr_(&M, &N, &K, A, &LDA, TAU, WORK, &LWORK, &INFO);     CALL_AND_RETHROW(ungqr_error_handling(INFO, 'c'));}
+    static inline void ungqr(const blas_int_type M, const blas_int_type N, const blas_int_type K, complex<double>* A, const blas_int_type LDA, complex<double>* TAU, complex<double>* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    zungqr_(&M, &N, &K, A, &LDA, TAU, WORK, &LWORK, &INFO);     CALL_AND_RETHROW(ungqr_error_handling(INFO, 'z'));}
+
+
+private:
+    static inline void gelqf_error_handling(blas_int_type INFO, const char type)
+    {
+        if(INFO != 0)
+        {
+            if(INFO < 0)
+            {
+                std::ostringstream oss; 
+                oss << type << "gelqf call failed.  The argument at the " << -INFO << " position is invalid.";
+                RAISE_EXCEPTION_MESSSTR("Failed to compute qr decomposition.  ", oss.str());
+            }
+            else{RAISE_EXCEPTION("Failed to compute qr decomposition.");}
+        }    
+    }
+
+public:
+    //interface for constructing the qr - here this gives us the lq decomposition as all of our matrices are transposed
+    static inline void gelqf(const blas_int_type M, const blas_int_type N, float* A, const blas_int_type LDA, float* TAU, float* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;   sgelqf_(&M, &N, A, &LDA, TAU, WORK, &LWORK, &INFO);   CALL_AND_RETHROW(gelqf_error_handling(INFO, 's'));}
+    static inline void gelqf(const blas_int_type M, const blas_int_type N, double* A, const blas_int_type LDA, double* TAU, double* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;   dgelqf_(&M, &N, A, &LDA, TAU, WORK, &LWORK, &INFO);   CALL_AND_RETHROW(gelqf_error_handling(INFO, 'd'));}
+    static inline void gelqf(const blas_int_type M, const blas_int_type N, complex<float>* A, const blas_int_type LDA, complex<float>* TAU, complex<float>* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    cgelqf_(&M, &N, A, &LDA, TAU, WORK, &LWORK, &INFO);   CALL_AND_RETHROW(gelqf_error_handling(INFO, 'c'));}
+    static inline void gelqf(const blas_int_type M, const blas_int_type N, complex<double>* A, const blas_int_type LDA, complex<double>* TAU, complex<double>* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    zgelqf_(&M, &N, A, &LDA, TAU, WORK, &LWORK, &INFO);   CALL_AND_RETHROW(gelqf_error_handling(INFO, 'z'));}
+
+    static inline void unglq_error_handling(blas_int_type INFO, const char type)
+    {
+        if(INFO != 0)   
+        {
+            if(INFO < 0)
+            {
+                std::string method_name;
+                if(type == 's' || type == 'd'){method_name = "orglq";}
+                else{method_name = "unglq";}
+
+                std::ostringstream oss; 
+                oss << type << " " << method_name << "call failed.  The argument at the " << -INFO << " position is invalid.";
+                RAISE_EXCEPTION_MESSSTR("Failed to compute orthogonal Q matrix from elementary reflecators returned by gelqf.  ", oss.str());
+            }
+            else{RAISE_EXCEPTION("Failed to compute orthogonal Q matrix from elementary reflecators returned by gelqf.");}
+        }
+    }
+
+public:
+    static inline void unglq(const blas_int_type M, const blas_int_type N, const blas_int_type K, float* A, const blas_int_type LDA, float* TAU, float* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    sorglq_(&M, &N, &K, A, &LDA, TAU, WORK, &LWORK, &INFO);     CALL_AND_RETHROW(unglq_error_handling(INFO, 's'));}
+    static inline void unglq(const blas_int_type M, const blas_int_type N, const blas_int_type K, double* A, const blas_int_type LDA, double* TAU, double* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    dorglq_(&M, &N, &K, A, &LDA, TAU, WORK, &LWORK, &INFO);     CALL_AND_RETHROW(unglq_error_handling(INFO, 'd'));}
+    static inline void unglq(const blas_int_type M, const blas_int_type N, const blas_int_type K, complex<float>* A, const blas_int_type LDA, complex<float>* TAU, complex<float>* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    cunglq_(&M, &N, &K, A, &LDA, TAU, WORK, &LWORK, &INFO);     CALL_AND_RETHROW(unglq_error_handling(INFO, 'c'));}
+    static inline void unglq(const blas_int_type M, const blas_int_type N, const blas_int_type K, complex<double>* A, const blas_int_type LDA, complex<double>* TAU, complex<double>* WORK, const blas_int_type LWORK)
+    {blas_int_type INFO;   using namespace lapack;    zunglq_(&M, &N, &K, A, &LDA, TAU, WORK, &LWORK, &INFO);     CALL_AND_RETHROW(unglq_error_handling(INFO, 'z'));}
+
+
+public:
+    template <typename T, typename enabled = void> 
+    class random_number;
+
+    template <typename T> 
+    class random_number<complex<T>, typename std::enable_if<std::is_arithmetic<T>::value, void>::type>
+    {
+    public:
+        template <typename dist, typename rng>
+        static inline complex<T> generate_normal(dist& _dist, rng& _rng)
+        {
+            return complex<T>(_dist(_rng), _dist(_rng));
+        }
+    };
+
+
+    template <typename T> 
+    class random_number<T, typename std::enable_if<std::is_arithmetic<T>::value, void>::type>
+    {
+    public:
+        template <typename dist, typename rng>
+        static inline T generate_normal(dist& _dist, rng& _rng)
+        {
+            return _dist(_rng);
+        }
+    };
+
+public:
+    template <typename T, typename rng>
+    static inline void fill_random_normal(T* t, size_type n, rng& _rng)
+    {
+        std::uniform_real_distribution<typename get_real_type<T>::type> dist(0, 1);
+        for(size_type i = 0; i < n; ++i){t[i] = random_number<T>::generate_normal(dist, _rng);}
+    }
+
 };
 
 

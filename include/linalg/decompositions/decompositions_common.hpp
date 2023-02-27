@@ -158,6 +158,9 @@ using valid_decomp_matrix_type = typename std::enable_if<is_valid_decomp_matrix_
 template <typename m1, typename m2, typename m3, typename return_type>
 using valid_decomp_matrix_type_2 = typename std::enable_if<is_valid_decomp_matrix_type<m1, m2>::value &&is_valid_decomp_matrix_type<m1, m3>::value , return_type>::type;
 
+template <typename m1, typename m2, typename m3, typename m4, typename return_type>
+using valid_decomp_matrix_type_3 = typename std::enable_if<is_valid_decomp_matrix_type<m1, m2>::value && is_valid_decomp_matrix_type<m1, m3>::value && is_valid_decomp_matrix_type<m1, m4>::value, return_type>::type;
+
 template <typename m1, typename m2, typename return_type, template <typename ...> class condition, typename ... args>
 using valid_mutable_decomp_func = typename std::enable_if<is_valid_decomp_matrix_type<m1, m2>::value && traits<m2>::is_mutable && condition<args..., remove_cvref_t<typename traits<m1>::value_type>, typename traits<m1>::backend_type>::value, return_type>::type;
 

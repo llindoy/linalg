@@ -107,7 +107,21 @@ public:
         }
     }
     template <typename mat_type, typename vec_type, typename x_type>
-    typename std::enable_if<internal::valid_decomposition_matrix<mat_type, value_type, backend_type>::value, void>::type operator()(mat_type& m, const vec_type& B, x_type& x, bool keep_input = true)
+    typename std::enable_if<internal::valid_decomposition_matrix<mat_type, value_type, backend_type>::value, void>::type operator()(const mat_type& m, x_type& x, const vec_type& B)
+    {
+        ASSERT(m.shape(0) == m.shape(1), "Failed to compute linear_solver.  The input matrix is not square.");
+        ASSERT(B.shape(0) == m.shape(0), "Failed to compute linear_solver.  The input vector is not compatible with the input matrix.");
+        ASSERT(x.shape(0) == m.shape(0), "Failed to compute linear_solver.  The input vector is not compatible with the input matrix.");
+        CALL_AND_HANDLE(resize(m.shape(0), true), "Failed to compute linear_solver.  Failed to resize the temporary buffers.");
+        CALL_AND_HANDLE(m_temp = m, "Failed to compute linear_solver.  Failed to copy array into temporary array.");
+        CALL_AND_HANDLE(m_lu(m, m_temp, m_ipiv), "Failed to compute linear_solver.  LU decomposition failed.");
+        x = B;
+        CALL_AND_HANDLE(blas_backend::getrs('T', m_temp.size(1), 1, m_temp.buffer(), m_temp.size(1), m_ipiv.buffer(), x.buffer(), B.size()), "Failed to solve linear system.  Lapack call failed.");
+    }
+
+
+    template <typename mat_type, typename vec_type, typename x_type>
+    typename std::enable_if<internal::valid_decomposition_matrix<mat_type, value_type, backend_type>::value, void>::type operator()(mat_type& m, x_type& x, const vec_type& B, bool keep_input = true)
     {
         ASSERT(m.shape(0) == m.shape(1), "Failed to compute linear_solver.  The input matrix is not square.");
         ASSERT(B.shape(0) == m.shape(0), "Failed to compute linear_solver.  The input vector is not compatible with the input matrix.");
@@ -231,7 +245,21 @@ public:
     }
 
     template <typename mat_type, typename vec_type, typename x_type>
-    typename std::enable_if<internal::valid_decomposition_matrix<mat_type, value_type, backend_type>::value, void>::type operator()(mat_type& m, const vec_type& B, x_type& X, bool keep_input = true)
+    typename std::enable_if<internal::valid_decomposition_matrix<mat_type, value_type, backend_type>::value, void>::type operator()(const mat_type& m, x_type& X, const vec_type& B)
+    {
+        ASSERT(m.shape(0) == m.shape(1), "Failed to compute linear_solver.  The input matrix is not square.");
+        ASSERT(B.shape(0) == m.shape(0), "Failed to compute linear_solver.  The input vector is not compatible with the input matrix.");
+        ASSERT(X.shape(0) == m.shape(0), "Failed to compute linear_solver.  The input vector is not compatible with the input matrix.");
+        CALL_AND_HANDLE(resize(m.shape(0), true), "Failed to compute linear_solver.  Failed to resize the temporary buffers.");
+        CALL_AND_HANDLE(m_temp = m, "Failed to compute linear_solver.  Failed to copy array into temporary array.");
+        CALL_AND_HANDLE(m_lu(m, m_temp, m_ipiv), "Failed to compute linear_solver.  LU decomposition failed.");
+        X = B;
+        CALL_AND_HANDLE(cuda_backend::getrs(cuda_backend::op_t, m_temp.size(1), 1, m_temp.buffer(), m_temp.size(1), m_ipiv.buffer(), X.buffer(), B.size(), m_gpu_info.buffer()), "Failed to solve linear system.  Lapack call failed.");
+    }
+
+
+    template <typename mat_type, typename vec_type, typename x_type>
+    typename std::enable_if<internal::valid_decomposition_matrix<mat_type, value_type, backend_type>::value, void>::type operator()(mat_type& m, x_type& X, const vec_type& B, bool keep_input = true)
     {
         ASSERT(m.shape(0) == m.shape(1), "Failed to compute linear_solver.  The input matrix is not square.");
         ASSERT(B.shape(0) == m.shape(0), "Failed to compute linear_solver.  The input vector is not compatible with the input matrix.");

@@ -142,7 +142,7 @@ public:
         try
         {
             ASSERT(m_krylov_dim != 0, "Failed to compute the partial krylov subspace. Cannot construct a krylov subspace with dim of 0.");
-            if(istart > iend){std::cerr << istart << " " << iend << std::endl;}
+            ASSERT(iend > 0, "Krylov subspace with one vector is useless.");
             ASSERT(istart <= iend, "Failed to compute the partial krylov subspace.  The starting index must be smaller than the final index.");
             ASSERT(iend <= m_krylov_dim, "Failed to compute the partial krylov subspace.  The final index is larger than the maximum krylov subspace dimension.");
 
@@ -159,7 +159,7 @@ public:
                 cur_krylov_dim=i;
                 if(i == 0)
                 {
-                    auto q0 = m_Q[0];  q0 = vec.reinterpret_shape(q0.size());  real_type fnorm = sqrt(real(dot_product(conj(q0), q0)));  
+                    auto q0 = m_Q[0];  q0.set_buffer(vec);  real_type fnorm = sqrt(real(dot_product(conj(q0), q0)));  
                     m_beta = fnorm;
                     q0 = q0/fnorm;
                 }
@@ -205,101 +205,12 @@ public:
             RAISE_EXCEPTION("Failed to compute the partial krylov subspace.");
         }
     }
-
-protected:
-    template <typename x_type, typename vecs_type> 
-    void deflation_step(x_type& x, const vecs_type& vec, size_type vindex)
-    {
-        for(size_type j=0; j<vindex; ++j)
-        {
-            auto qj = vec[j];
-            value_type overlap;
-            CALL_AND_HANDLE(overlap = dot_product(conj(qj), x), "Failed to compute the partial krylov subspace.  Failed to compute overlap necessary for modified Gram-Schmitd.");
-            CALL_AND_HANDLE(x -= overlap*qj, "Failed to compute partial krylov subspace.  Failed to orthogonalise vector.");
-        }
-    }
-    
-public:
-    template <typename vecs_type, typename ... Args>
-    bool partial_krylov_step_deflation(const vecs_type& vec, size_type vindex, real_type scale, size_type istart, size_type iend, Args&& ... args) 
-    {
-        try
-        {
-            ASSERT(m_krylov_dim != 0, "Failed to compute the partial krylov subspace. Cannot construct a krylov subspace with dim of 0.");
-            ASSERT(istart <= iend, "Failed to compute the partial krylov subspace.  The starting index must be smaller than the final index.");
-            ASSERT(iend <= m_krylov_dim, "Failed to compute the partial krylov subspace.  The final index is larger than the maximum krylov subspace dimension.");
-
-            
-            CALL_AND_HANDLE(reset_krylov_subspace_dimension(vec.size(1)), "Failed to compute the partial krylov subspace.  Failed to initialise the krylov subspace vector storage.");
-            bool iteration_completed_early = false;
-
-            using std::sqrt;
-
-            auto wp = m_w.reinterpret_shape(vec.shape(1));
-            size_t cur_krylov_dim = 0;
-            for(size_type i=istart; i <= iend && !iteration_completed_early; ++i)
-            {
-                cur_krylov_dim=i;
-                if(i == 0)
-                {
-                    auto q0 = m_Q[0];  q0 = vec[vindex].reinterpret_shape(q0.size());  real_type fnorm = sqrt(real(dot_product(conj(q0), q0)));  
-                    m_beta = fnorm;
-                    q0 = q0/fnorm;
-
-                    CALL_AND_HANDLE(deflation_step(q0, vec, vindex), "Deflation step failed.");
-                }
-                else
-                {
-                    auto qp = m_Q[i-1];      //get the previous vector
-                    auto qi = m_Q[i];        //and the new vector we are trying to construct
-
-                    auto rqp = qp.reinterpret_shape(vec.shape(1));       //get this object shaped correctly for apply the operator defined by args
-
-                    //now apply the operator defined by args that is potentially scaled
-                    CALL_AND_HANDLE(compute_action(rqp, wp, std::forward<Args>(args)...), "Failed to compute the partial krylov subspace.  Failed to evaluate action on vector.");
-                    m_w *= scale;       // and handle the scaling
-
-                    CALL_AND_HANDLE(deflation_step(m_w, vec, vindex), "Deflation step failed.");
-
-                    //now we orthogonalise this vector against the current krylov subspace
-                    for(size_type j=0; j<i; ++j)
-                    {
-                        auto qj = m_Q[j];
-                        CALL_AND_HANDLE(m_Hv(i-1, j) = dot_product(conj(qj), m_w), "Failed to compute the partial krylov subspace.  Failed to compute overlap necessary for modified Gram-Schmitd.");
-                        CALL_AND_HANDLE(m_w -= m_Hv(i-1, j)*qj, "Failed to compute partial krylov subspace.  Failed to orthogonalise vector.");
-                    }
-                    real_type norm = sqrt(real(dot_product(conj(m_w), m_w)));
-                    cur_krylov_dim = i; 
-                    m_Hv(i-1, i) = norm;
-                    if(norm < m_threshold){iteration_completed_early = true;}
-                    else
-                    {
-                        qi = m_w/norm;
-                    }
-                }
-            }
-            CALL_AND_HANDLE(finalise_krylov_rep(cur_krylov_dim), "Failed to compute partial krylov subspace.  Failed when finalising the iteration.");
-            return iteration_completed_early;
-        }        
-        catch(const invalid_value& ex)
-        {
-            std::cerr << ex.what() << std::endl;
-            RAISE_NUMERIC("computing the partial krylov subspace.");
-        }
-        catch(const std::exception& ex)
-        {
-            std::cerr << ex.what() << std::endl;
-            RAISE_EXCEPTION("Failed to compute the partial krylov subspace.");
-        }
-    }
-
     
     const real_type& beta() const{return m_beta;}
     real_type hk1k() const{return std::real(m_Hv(m_cur_krylov_dim-1, m_cur_krylov_dim));}
     real_type& threshold(){return m_threshold;}
     const real_type& threshold() const{return m_threshold;}
     const size_type& current_krylov_dim() const{return m_cur_krylov_dim;}
-    const size_type& krylov_dim() const{return m_krylov_dim;}
 
     const matrix<value_type, backend_type>& Q()const {return m_Q;}
     matrix<value_type, backend_type>& Q(){return m_Q;}

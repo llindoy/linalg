@@ -27,32 +27,23 @@ namespace blas
 #ifndef BLAS_HEADER_INCLUDED
 extern "C"
 {
-    void saxpy_(const blas_int_type* const N,           const float* const A,           const float* const X, const blas_int_type* const INCX,           float* const Y, const blas_int_type* const INCY);
-    void daxpy_(const blas_int_type* const N,          const double* const A,          const double* const X, const blas_int_type* const INCX,          double* const Y, const blas_int_type* const INCY);
+    void saxpy_(const blas_int_type* const N,                const float* const A,                const float* const X, const blas_int_type* const INCX,                float* const Y, const blas_int_type* const INCY);
+    void daxpy_(const blas_int_type* const N,               const double* const A,               const double* const X, const blas_int_type* const INCX,               double* const Y, const blas_int_type* const INCY);
     void caxpy_(const blas_int_type* const N,  const std::complex<float>* const A,  const std::complex<float>* const X, const blas_int_type* const INCX,  std::complex<float>* const Y, const blas_int_type* const INCY);
     void zaxpy_(const blas_int_type* const N, const std::complex<double>* const A, const std::complex<double>* const X, const blas_int_type* const INCX, std::complex<double>* const Y, const blas_int_type* const INCY);
 
-    void sscal_(const blas_int_type* const N,           const float* const A,           const float* const X, const blas_int_type* const INCX);
-    void dscal_(const blas_int_type* const N,          const double* const A,          const double* const X, const blas_int_type* const INCX);
+    void sscal_(const blas_int_type* const N,                const float* const A,                const float* const X, const blas_int_type* const INCX);
+    void dscal_(const blas_int_type* const N,               const double* const A,               const double* const X, const blas_int_type* const INCX);
     void cscal_(const blas_int_type* const N,  const std::complex<float>* const A,  const std::complex<float>* const X, const blas_int_type* const INCX);
     void zscal_(const blas_int_type* const N, const std::complex<double>* const A, const std::complex<double>* const X, const blas_int_type* const INCX);
 
-/*  
-    float            sdot_(const blas_int_type* const N,           const float* const X, const blas_int_type* const INCX,           const float* const Y, const blas_int_type* const INCY);
-    double           ddot_(const blas_int_type* const N,          const double* const X, const blas_int_type* const INCX,          const double* const Y, const blas_int_type* const INCY);
-    std::complex<float>  cdotc_(const blas_int_type* const N,  const std::complex<float>* const X, const blas_int_type* const INCX,  const std::complex<float>* const Y, const blas_int_type* const INCY);
-    std::complex<float>  cdotu_(const blas_int_type* const N,  const std::complex<float>* const X, const blas_int_type* const INCX,  const std::complex<float>* const Y, const blas_int_type* const INCY);
-    std::complex<double> zdotc_(const blas_int_type* const N, const std::complex<double>* const X, const blas_int_type* const INCX, const std::complex<double>* const Y, const blas_int_type* const INCY);
-    std::complex<double> zdotu_(const blas_int_type* const N, const std::complex<double>* const X, const blas_int_type* const INCX, const std::complex<double>* const Y, const blas_int_type* const INCY);
-
-*/
-    void sgemv_(const char* const TRANSA, const blas_int_type* const M, const blas_int_type* const N,           const float* const ALPHA,           const float* const A, const blas_int_type* const LDA,           const float* const X, const blas_int_type* const INCX,           const float* const BETA,           float* const Y, const blas_int_type* const INCY);
-    void dgemv_(const char* const TRANSA, const blas_int_type* const M, const blas_int_type* const N,          const double* const ALPHA,          const double* const A, const blas_int_type* const LDA,          const double* const X, const blas_int_type* const INCX,          const double* const BETA,          double* const Y, const blas_int_type* const INCY);
+    void sgemv_(const char* const TRANSA, const blas_int_type* const M, const blas_int_type* const N,                const float* const ALPHA,                const float* const A, const blas_int_type* const LDA,                const float* const X, const blas_int_type* const INCX,                const float* const BETA,                float* const Y, const blas_int_type* const INCY);
+    void dgemv_(const char* const TRANSA, const blas_int_type* const M, const blas_int_type* const N,               const double* const ALPHA,               const double* const A, const blas_int_type* const LDA,               const double* const X, const blas_int_type* const INCX,               const double* const BETA,               double* const Y, const blas_int_type* const INCY);
     void cgemv_(const char* const TRANSA, const blas_int_type* const M, const blas_int_type* const N,  const std::complex<float>* const ALPHA,  const std::complex<float>* const A, const blas_int_type* const LDA,  const std::complex<float>* const X, const blas_int_type* const INCX,  const std::complex<float>* const BETA,  std::complex<float>* const Y, const blas_int_type* const INCY);
     void zgemv_(const char* const TRANSA, const blas_int_type* const M, const blas_int_type* const N, const std::complex<double>* const ALPHA, const std::complex<double>* const A, const blas_int_type* const LDA, const std::complex<double>* const X, const blas_int_type* const INCX, const std::complex<double>* const BETA, std::complex<double>* const Y, const blas_int_type* const INCY);
 
-    void sgemm_(const char* const TRANSA, const char* const TRANSB, const blas_int_type* const M, const blas_int_type* const N, const blas_int_type* const K,           const float* const ALPHA,           const float* const A, const blas_int_type* const LDA,           const float* const B, const blas_int_type* const LDB,           const float* const BETA,           float* const C, const blas_int_type* const LDC);
-    void dgemm_(const char* const TRANSA, const char* const TRANSB, const blas_int_type* const M, const blas_int_type* const N, const blas_int_type* const K,          const double* const ALPHA,          const double* const A, const blas_int_type* const LDA,          const double* const B, const blas_int_type* const LDB,          const double* const BETA,          double* const C, const blas_int_type* const LDC);
+    void sgemm_(const char* const TRANSA, const char* const TRANSB, const blas_int_type* const M, const blas_int_type* const N, const blas_int_type* const K,                const float* const ALPHA,                const float* const A, const blas_int_type* const LDA,                const float* const B, const blas_int_type* const LDB,                const float* const BETA,                float* const C, const blas_int_type* const LDC);
+    void dgemm_(const char* const TRANSA, const char* const TRANSB, const blas_int_type* const M, const blas_int_type* const N, const blas_int_type* const K,               const double* const ALPHA,               const double* const A, const blas_int_type* const LDA,               const double* const B, const blas_int_type* const LDB,               const double* const BETA,               double* const C, const blas_int_type* const LDC);
     void cgemm_(const char* const TRANSA, const char* const TRANSB, const blas_int_type* const M, const blas_int_type* const N, const blas_int_type* const K,  const std::complex<float>* const ALPHA,  const std::complex<float>* const A, const blas_int_type* const LDA,  const std::complex<float>* const B, const blas_int_type* const LDB,  const std::complex<float>* const BETA,  std::complex<float>* const C, const blas_int_type* const LDC);
     void zgemm_(const char* const TRANSA, const char* const TRANSB, const blas_int_type* const M, const blas_int_type* const N, const blas_int_type* const K, const std::complex<double>* const ALPHA, const std::complex<double>* const A, const blas_int_type* const LDA, const std::complex<double>* const B, const blas_int_type* const LDB, const std::complex<double>* const BETA, std::complex<double>* const C, const blas_int_type* const LDC);
 }   //extern functions for the blas routines required
@@ -93,45 +84,6 @@ static inline void scal(const blas_int_type* const N, const complex<double>* con
     using type = std::complex<double>*; 
     zscal_(N, reinterpret_cast<ctype>(A), reinterpret_cast<type>(X), INCX);
 }
-
-//overloads of the dot product calls.  Here we also add the abili
-//static inline float dot(bool /* conj */, const blas_int_type* const N, const float* const X, const blas_int_type* const INCX, const float* const Y, const blas_int_type* const INCY){return sdot_(N, X, INCX, Y, INCY);}
-//static inline double dot(bool /* conj */, const blas_int_type* const N, const double* const X, const blas_int_type* const INCX, const double* const Y, const blas_int_type* const INCY){return ddot_(N, X, INCX, Y, INCY);}
-/* 
-#ifdef NOT_ALLOWS_RETURN_TYPE
-static inline complex<float> dot(bool conj, const blas_int_type* const N, const complex<float>* const X, const blas_int_type* const INCX, const complex<float>* const Y, const blas_int_type* const INCY)
-{
-    using ctype = const std::complex<float>* const; 
-    using cctype = const std::complex<float>* ; 
-    complex<float> ret;
-    if(conj){cdotc(reinterpret_cast<cctype>(&ret), N, reinterpret_cast<ctype>(X), INCX, reinterpret_cast<ctype>(Y), INCY);}
-    else{cdotu(reinterpret_cast<cctype>(&ret), N, reinterpret_cast<ctype>(X), INCX, reinterpret_cast<ctype>(Y), INCY);}
-    return ret;
-}
-static inline complex<double> dot(bool conj, const blas_int_type* const N, const complex<double>* const X, const blas_int_type* const INCX, const complex<double>* const Y, const blas_int_type* const INCY)
-{
-    using ctype = const std::complex<double>* const; 
-    using cctype = const std::complex<double>*; 
-    complex<double> ret;
-    if(conj){zdotc_(reinterpret_cast<cctype>(&ret), N, reinterpret_cast<ctype>(X), INCX, reinterpret_cast<ctype>(Y), INCY);}
-    else{zdotu_(reinterpret_cast<cctype>(&ret), N, reinterpret_cast<ctype>(X), INCX, reinterpret_cast<ctype>(Y), INCY);}
-    return ret;
-}
-#else
-static inline complex<float> dot(bool conj, const blas_int_type* const N, const complex<float>* const X, const blas_int_type* const INCX, const complex<float>* const Y, const blas_int_type* const INCY)
-{
-    using ctype = const std::complex<float>* const; 
-    if(conj){return cdotc_(N, reinterpret_cast<ctype>(X), INCX, reinterpret_cast<ctype>(Y), INCY);}
-    else{return cdotu_(N, reinterpret_cast<ctype>(X), INCX, reinterpret_cast<ctype>(Y), INCY);}
-}
-static inline complex<double> dot(bool conj, const blas_int_type* const N, const complex<double>* const X, const blas_int_type* const INCX, const complex<double>* const Y, const blas_int_type* const INCY)
-{
-    using ctype = const std::complex<double>* const; 
-    if(conj){return zdotc_(N, reinterpret_cast<ctype>(X), INCX, reinterpret_cast<ctype>(Y), INCY);}
-    else{return zdotu_(N, reinterpret_cast<ctype>(X), INCX, reinterpret_cast<ctype>(Y), INCY);}
-}
-#endif
- */
 
 //overloads of matrix vector product calls
 static inline void gemv(char* const TRANSA, const blas_int_type* const M, const blas_int_type* const N, const float* const ALPHA, const float* const A, const blas_int_type* const LDA, const float* const X, const blas_int_type* const INCX, const float* const BETA, float* const Y, const blas_int_type* const INCY)

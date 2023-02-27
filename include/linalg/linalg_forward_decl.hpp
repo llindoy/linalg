@@ -153,6 +153,8 @@ template <typename matrix_type, typename enabled = void> class generalised_eigen
 template <typename matrix_type, typename enabled = void> class eigensolver;
 template <typename matrix_type, typename enabled = void> class tridiagonalisation;
 template <typename matrix_type, bool use_divide_and_conquer = true, typename enabled = void> class singular_value_decomposition;
+template <typename matrix_type, typename enabled = void> class qr;
+template <typename matrix_type, typename enabled = void> class lq;
 template <typename matrix_type, typename enabler = void> class lu_decomposition;
 template <typename matrix_type, bool use_lu = true, typename enabler = void> class determinant;
 template <typename matrix_type, bool use_lu = true, typename enabler = void> class linear_solver;

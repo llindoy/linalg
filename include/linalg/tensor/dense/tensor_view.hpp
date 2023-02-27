@@ -254,31 +254,31 @@ public:
 
     inline bool same_shape(const shape_type& _shape) const{return _shape == m_shape;}
 public:    
-    template <typename ... Args>
-    inline tensor_view<typename std::add_const<value_type>::type, sizeof...(Args), backend_type> reinterpret_shape(Args&& ... args) const
+    template <typename Itype, typename ... Args>
+    inline typename std::enable_if<std::is_integral<Itype>::value, tensor_view<typename std::add_const<value_type>::type, sizeof...(Args)+1, backend_type>>::type reinterpret_shape(const Itype& i, Args&& ... args) const
     {
-        using reinterpreted_type = tensor_view<typename std::add_const<value_type>::type, sizeof...(Args), backend_type>;
-        CALL_AND_HANDLE(return reinterpreted_type(size(), true, m_buffer, std::forward<Args>(args)...), "Failed to reinterpret the shape of the tensor_view object.");
+        using reinterpreted_type = tensor_view<typename std::add_const<value_type>::type, sizeof...(Args)+1, backend_type>;
+        CALL_AND_HANDLE(return reinterpreted_type(size(), true, m_buffer, i, std::forward<Args>(args)...), "Failed to reinterpret the shape of the tensor_view object.");
     }
 
-    template <typename ... Args>
-    inline tensor_view<value_type, sizeof...(Args), backend_type> reinterpret_shape(Args&& ... args)
+    template <typename Itype, typename ... Args>
+    inline typename std::enable_if<std::is_integral<Itype>::value, tensor_view<value_type, sizeof...(Args)+1, backend_type>>::type reinterpret_shape(const Itype& i, Args&& ... args)
     {
-        using reinterpreted_type = tensor_view<value_type, sizeof...(Args), backend_type>;
-        CALL_AND_HANDLE(return reinterpreted_type(size(), true, m_buffer, std::forward<Args>(args)...), "Failed to reinterpret the shape of the tensor_view object.");
+        using reinterpreted_type = tensor_view<value_type, sizeof...(Args)+1, backend_type>;
+        CALL_AND_HANDLE(return reinterpreted_type(size(), true, m_buffer, i, std::forward<Args>(args)...), "Failed to reinterpret the shape of the tensor_view object.");
     }
 
     template <size_t vD>
-    inline reinterpreted_tensor<typename std::add_const<value_type>::type, vD, backend_type> reinterpret_shape(const std::array<size_type, vD>& _size) const
+    inline tensor_view<typename std::add_const<value_type>::type, vD, backend_type> reinterpret_shape(const std::array<size_type, vD>& _size) const
     {
-        using reinterpreted_type = reinterpreted_tensor<typename std::add_const<value_type>::type, vD, backend_type>;
+        using reinterpreted_type = tensor_view<typename std::add_const<value_type>::type, vD, backend_type>;
         CALL_AND_HANDLE(return reinterpreted_type(size(), true, m_buffer, _size), "Failed to reinterpret the shape of the tensor_view object.");
     }
 
     template <size_t vD>
-    inline reinterpreted_tensor<value_type, vD, backend_type> reinterpret_shape(const std::array<size_type, vD>& _size)
+    inline tensor_view<value_type, vD, backend_type> reinterpret_shape(const std::array<size_type, vD>& _size)
     {
-        using reinterpreted_type = reinterpreted_tensor<value_type, vD, backend_type>;
+        using reinterpreted_type = tensor_view<value_type, vD, backend_type>;
         CALL_AND_HANDLE(return reinterpreted_type(size(), true, m_buffer, _size), "Failed to reinterpret the shape of the tensor_view object.");
     }
 public:
