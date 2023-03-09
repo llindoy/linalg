@@ -26,7 +26,7 @@ protected:
     using iallocator = memory::allocator<index_type, backend_type>;    template <typename srcbck> using memtransfer = memory::transfer<srcbck, backend_type>;
 
     index_pointer m_colind;                             ///< The column indices of the values stored in the matrix
-    index_pointer m_nowptr;                             ///< The cumulative number of elements in each row padded with an initial 0
+    index_pointer m_rowptr;                             ///< The cumulative number of elements in each row padded with an initial 0
     size_type m_nnz;                                    ///< The total number of non-zero elements in the csr matrix
     size_type m_max_nnz;                                ///< The maximum number of non-zero elements that the allocated buffers can store
     size_type m_max_rows;                               ///< The maximum number of rows that the matrix could have
