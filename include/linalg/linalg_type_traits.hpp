@@ -32,6 +32,7 @@ template <typename type> struct is_linalg_object{static constexpr bool value = i
 template <typename type> struct is_dense_tensor{static constexpr bool value = is_dense<type>::value && is_tensor<type>::value;};
 template <typename type> struct is_sparse_tensor{static constexpr bool value = is_sparse<type>::value && is_tensor<type>::value;};
 
+template <typename T, typename res = void> using validate_linalg_type = typename std::enable_if<is_linalg_object<T>::value, res>::type;
 template <typename T, typename res = void> using validate_tensor_type = typename std::enable_if<is_tensor<T>::value, res>::type;
 template <typename T, typename res = void> using validate_dense_tensor_type = typename std::enable_if<is_dense_tensor<T>::value, res>::type;
 template <typename T, typename res = void> using validate_sparse_tensor_type = typename std::enable_if<is_sparse_tensor<T>::value, res>::type;
@@ -402,8 +403,14 @@ template <typename T1, typename T2> struct is_valid_sdgemv
     >::type 
 {};
 
-template <typename T1, typename T2> struct is_valid_gemv : public std::conditional<is_valid_ddgemv<T1, T2>::value || is_valid_sdgemv<T1, T2>::value, std::true_type, std::false_type>::type{};
+template <typename T1, typename T2> struct _is_valid_gemv : public std::conditional<is_valid_ddgemv<T1, T2>::value || is_valid_sdgemv<T1, T2>::value, std::true_type, std::false_type>::type{};
 
+template <typename T1, typename T2, typename = typename std::enable_if<is_linalg_object<T1>::value && is_linalg_object<T2>::value, void>::type >
+struct is_valid_gemv
+{
+    using type = typename _is_valid_gemv<T1, T2>::type;
+    static constexpr bool value = type::value;
+};
 
 
 template <typename T1, typename T2> struct is_valid_ddgemm 
@@ -424,7 +431,20 @@ template <typename T1, typename T2> struct is_valid_sdgemm
     >::type 
 {};
 
-template <typename T1, typename T2> struct is_valid_gemm : public std::conditional<is_valid_ddgemm<T1, T2>::value || is_valid_sdgemm<T1, T2>::value || is_valid_sdgemm<T2, T1>::value, std::true_type, std::false_type>::type{};
+
+template <typename T1, typename T2> struct _is_valid_gemm : public std::conditional
+                                                                  <
+                                                                    is_linalg_object<T1>::value && is_linalg_object<T2>::value, 
+                                                                    typename std::conditional<is_valid_ddgemm<T1, T2>::value || is_valid_sdgemm<T1, T2>::value || is_valid_sdgemm<T2, T1>::value, std::true_type, std::false_type>::type,
+                                                                    std::false_type
+                                                                  >::type{};
+
+template <typename T1, typename T2, typename = typename std::enable_if<is_linalg_object<T1>::value && is_linalg_object<T2>::value, void>::type >
+struct is_valid_gemm
+{
+    using type = typename _is_valid_gemm<T1, T2>::type;
+    static constexpr bool value = type::value;
+};
 
 
 

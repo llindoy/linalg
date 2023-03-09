@@ -22,6 +22,20 @@ struct traits<T, validate_value_type<T> >
     static constexpr size_t rank = 0;
 };
 
+/*  
+template <typename T>
+struct traits<T, typename std::enable_if<not is_linalg_object<typename remove_cvref<T>::type>::value, void>::type >
+{
+    using value_type = void;
+    using backend_type = void;
+    using base_type = void;
+    using size_type = void;
+
+    static constexpr bool is_mutable = !std::is_const<T>::value;
+    static constexpr bool is_resizable = false;
+    static constexpr size_t rank = 0;
+};
+*/
 
 template <typename T, typename backend>
 struct traits<expression_templates::literal_type<T, backend>, validate_value_type<T> >
