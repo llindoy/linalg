@@ -19,10 +19,11 @@ struct svd_result_validation
     template <typename matrix_type, typename vals_type>
     static inline typename std::enable_if<is_diagonal_matrix_type<vals_type>::value && traits<vals_type>::is_resizable, void>::type singular_values(const matrix_type& mat, vals_type& eigs)
     {
-        if((eigs.shape(0) != mat.shape(0)) || (mat.shape(1) != eigs.shape(1)))
+        auto minmn = (mat.shape(0) < mat.shape(1) ? mat.shape(0) : mat.shape(1));
+        if((eigs.shape(0) != minmn) || (mat.shape(1) !=minmn))
         {
             //print out an info statement indicating that the eigensolver is resizing the eigenvalues array.
-            CALL_AND_HANDLE(eigs.resize(mat.shape(0), mat.shape(1)), "Failed to reshape the singular values vector.");
+            CALL_AND_HANDLE(eigs.resize(minmn, minmn), "Failed to reshape the singular values vector.");
         }
     }
     template <typename matrix_type, typename vals_type>

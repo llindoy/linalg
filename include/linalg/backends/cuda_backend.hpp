@@ -605,6 +605,13 @@ public:
         cuda_kernels::addition_assign_real_to_complex_array<<<dg, db, 0, _environment.current_stream()>>>(src, n, dest);
     }
     
+
+    template <typename T> 
+    static inline void copy_matrix_subblock(size_type m1, size_type n1, const T* src, size_type lda, T* dest, size_type ldb)
+    {   
+        RAISE_EXCEPTION("CUDA kernel Currently not implemented.");
+    }
+
     //function for filling a buffer with a value
     template <typename T> 
     static inline void fill_n(T* dest, size_type n, const T& val)

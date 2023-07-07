@@ -292,6 +292,17 @@ public:
 
 
 
+    template <typename T> 
+    static inline void copy_matrix_subblock(size_type m1, size_type n1, const T* src, size_type lda, T* dest, size_type ldb)
+    {   
+        for(size_t i=0; i<m1; ++i)
+        {
+            for(size_t j=0; j<n1; ++j)
+            {
+                dest[i*ldb+j] = src[i*lda+j];
+            }
+        }
+    }
 
 
     template <typename T> 

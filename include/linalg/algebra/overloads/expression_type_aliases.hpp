@@ -77,10 +77,19 @@ template <typename T1, typename T2> using scalconj_type = expression_templates::
 template <typename T1, typename T2> using scal_binary_type = expression_templates::binary_expression<expression_templates::literal_type<T1, typename traits<T2>::backend_type>, T2, expression_templates::multiplication_op, typename traits<T2>::backend_type>;
 template <typename T1, typename T2> using scal_type = expression_templates::expression_tree<scal_binary_type<T1, T2>, traits<T2>::rank, typename traits<T2>::backend_type>;
 
-template <typename T1, typename T2> using addition_supported = same_topology_type<T1, T2>;
-template <typename T1, typename T2> using hadamard_supported = same_topology_type<T1, T2>;
-template <typename T1, typename T2> using complex_supported = same_topology_type<T1, T2>;
-template <typename T1, typename T2> using polar_supported = same_topology_type<T1, T2>;
+
+
+template <typename T1, typename T2, typename = typename std::enable_if<is_linalg_object<T1>::value && is_linalg_object<T2>::value, void>::type >
+struct is_valid_elemental
+{
+    using type = same_topology_type<T1, T2>;
+    static constexpr bool value = type::value;
+};
+
+template <typename T1, typename T2> using addition_supported = is_valid_elemental<T1, T2>;
+template <typename T1, typename T2> using hadamard_supported = is_valid_elemental<T1, T2>;
+template <typename T1, typename T2> using complex_supported = is_valid_elemental<T1, T2>;
+template <typename T1, typename T2> using polar_supported = is_valid_elemental<T1, T2>;
 
 //type aliases that validate the input template parameters for the various operator overloads and give the resulting return type if the 
 //input parameters are valid.
