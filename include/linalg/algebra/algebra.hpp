@@ -12,11 +12,13 @@
 #include "expressions/elemental/applicative/complex.hpp"
           
 #include "expressions/permutations/transpose_expression.hpp"
+#include "expressions/permutations/tensor_transpose.hpp"
 //#include "expressions/permutations/tensor_permutation.hpp"
 
 #include "expressions/contractions/dense_matrix_vector_multiplication.hpp"
 #include "expressions/contractions/csr_matrix_vector_multiplication.hpp"
 #include "expressions/contractions/diagonal_matrix_vector_multiplication.hpp"
+#include "expressions/contractions/tensor_dot.hpp"
 
 #include "expressions/contractions/dense_dense_matrix_multiplication.hpp"
 #include "expressions/contractions/csr_matrix_dense_matrix_multiplication.hpp"

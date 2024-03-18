@@ -6,7 +6,7 @@ namespace linalg
 
 namespace internal
 {
-template <typename T1, typename T2>
+template <typename T1, typename T2, typename = typename std::enable_if<is_linalg_object<T1>::value && is_linalg_object<T2>::value, void>::type >
 struct is_valid_dot_product : 
     public std::conditional
     < 
@@ -31,7 +31,7 @@ struct is_valid_dot_product :
 
 
 //norm of an array
-template <typename T>
+template <typename T, typename = typename std::enable_if<is_linalg_object<T>::value, void>::type >
 typename linalg::get_real_type<typename traits<T>::value_type>::type abs(const T& a)
 {
     using value_type = typename std::remove_cv<typename traits<T>::value_type>::type;

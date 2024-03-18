@@ -30,7 +30,7 @@ template <typename T, bool conj> using perm3_type = expression_templates::tensor
 template <typename T1, typename T2>
 struct validate_axpy_binary_type
 {
-    using axpy_binary_type = typename std::enable_if<(is_expression<T1>::value || is_tensor<T1>::value) && (is_expression<T2>::value || is_tensor<T2>::value) &&
+    using axpy_binary_type = typename std::enable_if<is_linalg_object<T1>::value && is_linalg_object<T2>::value &&
         expression_templates::addition_allowed<T1>::value && expression_templates::addition_allowed<T2>::value,
         expression_templates::binary_expression<T1, T2, expression_templates::addition_op, typename traits<T2>::backend_type>>::type;
 };
@@ -41,7 +41,7 @@ template <typename T1, typename T2> using axpy_type = expression_templates::expr
 template <typename T1, typename T2>
 struct validate_hadamard_binary_type
 {
-    using hadamard_binary_type = typename std::enable_if<(is_expression<T1>::value || is_tensor<T1>::value) && (is_expression<T2>::value || is_tensor<T2>::value) &&
+    using hadamard_binary_type = typename std::enable_if<is_linalg_object<T1>::value && is_linalg_object<T2>::value &&
         expression_templates::hadamard_allowed<T1>::value && expression_templates::hadamard_allowed<T2>::value,
         expression_templates::binary_expression<T1, T2, expression_templates::hadamard_op, typename traits<T2>::backend_type>>::type;
 };
@@ -52,7 +52,7 @@ template <typename T1, typename T2> using hadamard_type = expression_templates::
 template <typename T1, typename T2>
 struct validate_complex_binary_type
 {
-    using complex_binary_type = typename std::enable_if<(is_expression<T1>::value || is_tensor<T1>::value) && (is_expression<T2>::value || is_tensor<T2>::value) &&
+    using complex_binary_type = typename std::enable_if<is_linalg_object<T1>::value && is_linalg_object<T2>::value &&
         expression_templates::complex_allowed<T1>::value && expression_templates::complex_allowed<T2>::value,
         expression_templates::binary_expression<T1, T2, expression_templates::complex_op, typename traits<T2>::backend_type>>::type;
 };
@@ -62,7 +62,7 @@ template <typename T1, typename T2> using complex_type = expression_templates::e
 template <typename T1, typename T2>
 struct validate_polar_binary_type
 {
-    using polar_binary_type = typename std::enable_if<(is_expression<T1>::value || is_tensor<T1>::value) && (is_expression<T2>::value || is_tensor<T2>::value) &&
+    using polar_binary_type = typename std::enable_if<is_linalg_object<T1>::value && is_linalg_object<T2>::value &&
         expression_templates::polar_allowed<T1>::value && expression_templates::polar_allowed<T2>::value,
         expression_templates::binary_expression<T1, T2, expression_templates::polar_op, typename traits<T2>::backend_type>>::type;
 };
@@ -320,13 +320,13 @@ template <typename T> using elemental_exp_unary_type = expression_templates::una
 template <typename T> using elemental_exp_type = expression_templates::expression_tree<elemental_exp_unary_type<T>, traits<T>::rank, typename traits<T>::backend_type>;
 
 
-template <typename T> using conj_return_type = typename std::enable_if<!is_number<T>::value,conj_type<T>>::type;
-template <typename T> using real_return_type = typename std::enable_if<!is_number<T>::value,real_type<T>>::type;
-template <typename T> using imag_return_type = typename std::enable_if<!is_number<T>::value,imag_type<T>>::type;
-template <typename T> using norm_return_type = typename std::enable_if<!is_number<T>::value,norm_type<T>>::type;
-template <typename T> using arg_return_type =  typename std::enable_if<!is_number<T>::value, arg_type<T>>::type;
-template <typename T> using unit_polar_return_type =  typename std::enable_if<!is_number<T>::value, unit_polar_type<T>>::type;
-template <typename T> using elemental_exp_return_type = typename std::enable_if<!is_number<T>::value,elemental_exp_type<T>>::type;
+template <typename T> using conj_return_type = typename std::enable_if<is_linalg_object<T>::value,conj_type<T>>::type;
+template <typename T> using real_return_type = typename std::enable_if<is_linalg_object<T>::value,real_type<T>>::type;
+template <typename T> using imag_return_type = typename std::enable_if<is_linalg_object<T>::value,imag_type<T>>::type;
+template <typename T> using norm_return_type = typename std::enable_if<is_linalg_object<T>::value,norm_type<T>>::type;
+template <typename T> using arg_return_type =  typename std::enable_if<is_linalg_object<T>::value, arg_type<T>>::type;
+template <typename T> using unit_polar_return_type =  typename std::enable_if<is_linalg_object<T>::value, unit_polar_type<T>>::type;
+template <typename T> using elemental_exp_return_type = typename std::enable_if<is_linalg_object<T>::value,elemental_exp_type<T>>::type;
 
 //TODO introduce generic tensor contraction result type aliases
 

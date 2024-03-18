@@ -88,7 +88,7 @@ axpy_return_type<tensor_slice<c1<T, D1, backend>, T1, D>, tensor_slice<c2<U, D2,
 }
 
 //operator -
-template <typename T1, typename T2, typename = typename std::enable_if< (is_tensor<T1>::value || is_expression<T1>::value) && (is_tensor<T2>::value || is_expression<T2>::value), void>::type>
+template <typename T1, typename T2, typename = typename std::enable_if< is_linalg_object<T1>::value && is_linalg_object<T2>::value, void>::type>
 auto operator-(const T1& a, const T2& b) -> decltype( a + static_cast<typename traits<T2>::value_type>(-1.0)*b){using cv = typename traits<T2>::value_type; CALL_AND_RETHROW(return a + static_cast<cv>(-1.0)*b);}
 
 

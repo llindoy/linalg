@@ -80,6 +80,13 @@ public:
         for(size_type i=0; i<rank; ++i){m_totsize*=_size[i];}  m_totcapacity = m_totsize;  init_stride();
         CALL_AND_HANDLE(m_buffer = allocator::allocate(m_totsize),"Failed to construct tensor object.  Buffer allocation failed.");
     }
+    
+    template <typename int_type>
+    tensor_base(const strict_array<int_type, rank>& _size) : m_buffer(nullptr), m_shape(_size), m_stride{}, m_totsize{1}, m_totcapacity{0}
+    {
+        for(size_type i=0; i<rank; ++i){m_totsize*=_size[i];}  m_totcapacity = m_totsize;  init_stride();
+        CALL_AND_HANDLE(m_buffer = allocator::allocate(m_totsize),"Failed to construct tensor object.  Buffer allocation failed.");
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////
     //                   Copy constructor from generic tensor base types                     //
@@ -143,7 +150,35 @@ public:
         return *this;
     }
 
+    inline self_type& set_buffer(const value_type* src, size_type size)
+    {
+        ASSERT(m_totsize == size, "Failed to copy buffer from input buffer.  The two objects do not have the same size.");
+        CALL_AND_HANDLE(memtransfer<backend_type>::copy(src, size, m_buffer),"Copy assignment operator failed.  Error when copying the buffer.");
+        return *this;
+    }
 
+    inline self_type& set_buffer(const value_type* src, const std::array<size_type, rank>& size, const std::array<size_type, rank>& strides)
+    {
+        ASSERT(m_shape == size, "Failed to copy buffer from input buffer.  The two objects do not have the same shape.");
+        bool strides_equal = true;
+        for(size_t i = 0; i < rank; ++i)
+        {
+            if(strides[i] != m_stride[i])
+            {
+                strides_equal=false;
+                break;
+            }
+        }
+        if(strides_equal)
+        {
+            CALL_AND_HANDLE(memtransfer<backend_type>::copy(src, m_totsize, m_buffer),"Copy assignment operator failed.  Error when copying the buffer.");
+        }
+        else
+        {
+            memtransfer<backend_type>::template copy_noncontiguous<value_type, rank>(src, m_shape, strides, m_buffer, m_stride);
+        }
+        return *this;
+    }
 
     inline self_type& swap(self_type& src) noexcept 
     {
@@ -259,6 +294,7 @@ public:
     inline const size_type& size() const{ return m_totsize;}
     inline const size_type& nelems() const {return m_totsize;}
     inline const shape_type& shape() const{ return m_shape;}
+    inline const shape_type& stride() const{ return m_stride;}
 
     inline const size_type& size(size_type i) const{    ASSERT(i < rank, "Unable to access tensor size element.  Index out of bounds.");  return m_shape[i];}
     inline const size_type& dims(size_type i) const{    ASSERT(i < rank, "Unable to access tensor size element.  Index out of bounds.");  return m_shape[i];}

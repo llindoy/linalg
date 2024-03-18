@@ -176,6 +176,7 @@ public:
     inline void resize(size_type _nrows){CALL_AND_RETHROW(resize(_nrows, _nrows));}
     inline void resize(const shape_type& _shape){CALL_AND_RETHROW(resize(_shape[0], _shape[1]));}
 
+
     void set_vals(const std::vector<value_type>& vals)
     {
         ASSERT(vals.size() == m_nnz, "Failed to set special matrix vals from vector.  The two buffers are not the same size.");
@@ -245,6 +246,11 @@ public:
     inline pointer data(){return m_vals;}
     inline const_pointer data()const{return m_vals;}
 
+    void set_buffer(const value_type* vals, size_type size)
+    {
+        ASSERT(size == m_nnz, "Failed to set special matrix vals from vector.  The two buffers are not the same size.");
+        CALL_AND_HANDLE(memtransfer<blas_backend>::copy(vals, m_nnz, m_vals), "Failed to set special matrix vals from vector.  Failed when copying the current vals buffer into the new vals buffer.");
+    }
 public:
     void init(const std::vector<value_type>& vals, size_type _nrows, size_type _ncols)
     {

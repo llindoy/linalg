@@ -251,6 +251,26 @@ ttc2_return_type<T1, T2> contract(const conj_type<T1>& l, I1 il, I2 jl, const co
     catch(...){throw;}
 }
 
+//template <typename T1, typename T2, typename I1, typename I2, typename D>
+//tensordot_expr<T1, T2, D>
+
+template <typename T1, typename T2, size_t D>
+typename std::enable_if<is_linalg_object<T1>::value && is_linalg_object<T2>::value, expression_templates::tensordot_expr<T1, T2, D>>::type 
+tensordot(const T1& A, const T2& B, const strict_array<int, D>& Ainds, const strict_array<int, D>& Binds)
+{
+    //static_assert(D1 == D2, "Invalid array sizes for tensordot.")
+    std::array<int, D> _Ainds(A);
+    std::array<int, D> _Binds(B);
+    return expression_templates::tensordot_expr<T1, T2, D>(A, B, _Ainds, _Binds);
+}
+
+template <typename T1, typename T2, size_t D>
+typename std::enable_if<is_linalg_object<T1>::value && is_linalg_object<T2>::value, expression_templates::tensordot_expr<T1, T2, D>>::type 
+ tensordot(const T1& A, const T2& B, const std::array<int, D>& Ainds, const std::array<int, D>& Binds)
+{
+    return expression_templates::tensordot_expr<T1, T2, D>(A, B, Ainds, Binds);
+}
+
 }   //namespace linalg
 
 

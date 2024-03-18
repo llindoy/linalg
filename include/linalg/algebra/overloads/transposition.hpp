@@ -1,6 +1,8 @@
 #ifndef LINALG_ALGEBRA_OVERLOADS_TRANSPOSE_DENSE_HPP
 #define LINALG_ALGEBRA_OVERLOADS_TRANSPOSE_DENSE_HPP
 
+#include <initializer_list>
+
 namespace linalg
 {
 
@@ -63,6 +65,55 @@ trans_return_type<T2, true> trans(const scalconj_type<T1, T2>& a){using rettype 
 template <typename T1, typename T2>
 trans_return_type<T2, false> adjoint(const scalconj_type<T1, T2>& a){using std::conj; using rettype = trans_type<T2, false>; CALL_AND_RETHROW(return rettype(a.right().obj(), conj(static_cast<typename T2::value_type>(a.left()))));}
 
+
+template <typename tensor_type, typename int_type>
+typename std::enable_if<is_linalg_object<tensor_type>::value,expression_templates::tensor_transpose_expression<tensor_type>>::type 
+trans(const tensor_type& A, const std::vector<int_type>& order)
+{
+    return expression_templates::tensor_transpose_expression<tensor_type>(A, order);
+}
+
+template <typename tensor_type, typename int_type>
+typename std::enable_if<is_linalg_object<tensor_type>::value,expression_templates::tensor_transpose_expression<tensor_type>>::type 
+trans(const tensor_type& A, const std::array<int_type, tensor_type::rank>& order)
+{
+    std::vector<int_type> vec(order.begin(), order.end());
+    return expression_templates::tensor_transpose_expression<tensor_type>(A, vec);
+}
+
+template <typename tensor_type>
+typename std::enable_if<is_linalg_object<tensor_type>::value,expression_templates::tensor_transpose_expression<tensor_type>>::type 
+trans(const tensor_type& A, const strict_array<int, tensor_type::rank>& order)
+{
+    std::vector<size_t> vec(order.begin(), order.end());
+    return expression_templates::tensor_transpose_expression<tensor_type>(A, vec);
+}
+
+
+template <typename tensor_type, typename int_type>
+typename std::enable_if<is_linalg_object<tensor_type>::value,expression_templates::tensor_transpose_expression<tensor_type>>::type 
+transpose(const tensor_type& A, const std::vector<int_type>& order)
+{
+    return expression_templates::tensor_transpose_expression<tensor_type>(A, order);
+}
+
+template <typename tensor_type, typename int_type>
+typename std::enable_if<is_linalg_object<tensor_type>::value,expression_templates::tensor_transpose_expression<tensor_type>>::type 
+transpose(const tensor_type& A, const std::array<int_type, tensor_type::rank>& order)
+{
+    std::vector<int_type> vec(order.begin(), order.end());
+    return expression_templates::tensor_transpose_expression<tensor_type>(A, vec);
+}
+
+template <typename tensor_type>
+typename std::enable_if<is_linalg_object<tensor_type>::value,expression_templates::tensor_transpose_expression<tensor_type>>::type 
+transpose(const tensor_type& A, const strict_array<int, tensor_type::rank>& order)
+{
+    std::vector<size_t> vec(order.begin(), order.end());
+    return expression_templates::tensor_transpose_expression<tensor_type>(A, vec);
+}
+
 }   //namespace linalg
+
 
 #endif  //LINALG_ALGEBRA_OVERLOADS_TRANSPOSE_DENSE_HPP//

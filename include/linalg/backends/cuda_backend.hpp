@@ -844,6 +844,13 @@ private:
             std::get<1>(ones) = 0;
         }
     }
+
+public:
+    template <typename T, typename arr2> 
+    static inline void tensor_transpose(const T* in, const std::vector<size_type>& inds, const arr2& dims, T* out)
+    {
+        RAISE_EXCEPTION("CUDA GENERIC TENSOR TRANSPOSE NOT IMPLEMENTED.");
+    }
 };  //cuda_backend
 
 cuda_environment cuda_backend::_environment;

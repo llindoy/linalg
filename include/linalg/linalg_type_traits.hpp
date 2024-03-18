@@ -2,10 +2,23 @@
 #define LINALG_TYPE_TRAITS_HPP
 
 #include <type_traits>
+#include <array>
 #include "utils/linalg_utils.hpp"
+
 
 namespace linalg
 {
+
+template<typename T, size_t N>
+struct strict_array : std::array<T, N>
+{
+    template<typename ... V>
+    strict_array(V... vals) // no &&/forward to simplify
+        : std::array<T, N>( {vals...} )
+    {
+        static_assert(sizeof...(vals) == N, "Please provide exactly 5 values");
+    }
+}; 
 
 //TODO: Add all of the type traits objects to another namespace to avoid namespace pollution
 

@@ -20,9 +20,10 @@ template <typename Container, typename enabled = void> struct traits;
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //                         forward declaration of tensor type flags                            //
 /////////////////////////////////////////////////////////////////////////////////////////////////
+class linalg_type{};
 
-class generic_tensor_type{}; template <size_t D> class tensor_type : public generic_tensor_type{static constexpr size_t rank = D;};
-class generic_expression_type{}; 
+class generic_tensor_type : linalg_type{}; template <size_t D> class tensor_type : public generic_tensor_type{static constexpr size_t rank = D;};
+class generic_expression_type : public linalg_type{}; 
 template <bool copyassignable> class is_const_expression_type : public generic_expression_type{};
 template <size_t D, bool copyassignable> class expression_type : public is_const_expression_type<copyassignable>{static constexpr size_t rank = D;};
 
@@ -116,6 +117,7 @@ template <typename expr, size_t rank, typename backend> class expression_tree;
 
 //declaration of tensor index permutation expression objects
 template <typename arrtype, bool conjugate, typename enabler = void> class transpose_expression;
+template <typename arrtype, typename enabler = void> class tensor_transpose_expression;
 template <typename arrtype, bool conjugate> class tensor_permutation_3_expression;
 
 ///declaration of tensor contraction expression objects
@@ -124,6 +126,8 @@ template <typename impl> class matrix_vector_product_base;
 template <typename T1, typename T2, class enabled = void> class matrix_vector_product;
 template <typename impl> class matrix_matrix_product_base;
 template <typename T1, typename T2, class enabled = void> class matrix_matrix_product;
+template <typename a_tensor_type, typename b_tensor_type, size_t D, class enabled=void> class tensordot_expr;
+
 
 template <typename T1, typename T2> class tensor_contraction_1_mt;
 template <typename T1, typename T2> class tensor_contraction_332;
